@@ -1,0 +1,24 @@
+name: Dispatch release event
+
+on:
+  release:
+    types: [published]
+
+jobs:
+
+  checkout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+  dispatch:
+    needs: checkout
+    runs-on: ubuntu-latest
+    steps:
+    - name: Repository Dispatch
+      uses: peter-evans/repository-dispatch@v1.1.3
+      with:
+        token: ${{ secrets.REPO_PUBLISH_TOKEN}}
+        repository: ${{ secrets.DISPATCH_TO_REPO }}
+        event-type: repo-released
+        client-payload: '{"repo_name": "${{ github.repository }}", "tag_name": "${{ github.event.release.tag_name }}", "ref": "${{ github.ref }}"}'
