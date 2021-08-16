@@ -176,6 +176,7 @@ build_qemu() {
 	cd ${BASE}
 	mkdir -p obj_qemu
 	cd obj_qemu
+	CC=$(which gcc) \
 	../qemu/configure --disable-fdt --disable-capstone --disable-guest-agent \
 	                  --disable-containers \
 	                  --python=$(which python3.6) \
@@ -214,7 +215,7 @@ HEX_SYSROOT=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-m
 HEX_TOOLS_TARGET_BASE=${HEX_SYSROOT}/usr
 ROOT_INSTALL_REL=${ROOT_INSTALL}
 ROOTFS=$(readlink -f ${ROOT_INSTALL})
-RESULTS_DIR=$(readlink -f ${ARTIFACTS})
+RESULTS_DIR=$(readlink -f ${ARTIFACT_BASE}/${ARTIFACT_TAG})
 
 BASE=$(readlink -f ${PWD})
 
