@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 STAMP=${1-$(date +"%Y_%b_%d")}
 
@@ -215,13 +215,13 @@ HEX_SYSROOT=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-m
 HEX_TOOLS_TARGET_BASE=${HEX_SYSROOT}/usr
 ROOT_INSTALL_REL=${ROOT_INSTALL}
 ROOTFS=$(readlink -f ${ROOT_INSTALL})
+mkdir -p ${ARTIFACT_BASE}/${ARTIFACT_TAG}
 RESULTS_DIR=$(readlink -f ${ARTIFACT_BASE}/${ARTIFACT_TAG})
 
 BASE=$(readlink -f ${PWD})
 
 set -x
 ccache --show-stats
-mkdir -p ${RESULTS_DIR}
 
 
 MUSL_CFLAGS="-G0 -O0 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl"

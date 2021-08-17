@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 STAMP=${1-$(date +"%Y_%b_%d")}
 
