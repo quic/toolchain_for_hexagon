@@ -207,6 +207,7 @@ purge_builds() {
 	rm -rf ${BASE}/obj_*/
 }
 
+set +x
 
 TOOLCHAIN_INSTALL_REL=${TOOLCHAIN_INSTALL}
 TOOLCHAIN_INSTALL=$(readlink -f ${TOOLCHAIN_INSTALL})
@@ -215,12 +216,12 @@ HEX_SYSROOT=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-m
 HEX_TOOLS_TARGET_BASE=${HEX_SYSROOT}/usr
 ROOT_INSTALL_REL=${ROOT_INSTALL}
 ROOTFS=$(readlink -f ${ROOT_INSTALL})
-mkdir -p ${ARTIFACT_BASE}/${ARTIFACT_TAG}
-RESULTS_DIR=$(readlink -f ${ARTIFACT_BASE}/${ARTIFACT_TAG})
+RESULTS_DIR_=${ARTIFACT_BASE}/${ARTIFACT_TAG}
+mkdir -p ${RESULTS_DIR_}
+RESULTS_DIR=$(readlink -f ${RESULTS_DIR_})
 
 BASE=$(readlink -f ${PWD})
 
-set -x
 ccache --show-stats
 
 
