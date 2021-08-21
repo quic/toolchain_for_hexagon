@@ -66,7 +66,7 @@ ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/68ab571e22e7dadf12
 ARG QEMU_REPO=https://github.com/quic/qemu
 ARG QEMU_SHA=0a0f70dd3bec32212e7996feb8371788bc00d183
 
-ENV MUSL_SRC_URL https://github.com/quic/musl/archive/aff74b395fbf59cd7e93b3691905aa1af6c0778c.tar.gz
+ENV MUSL_SRC_URL https://github.com/quic/musl/archive/7243e0d3a9d7e0f08d21fc194a05749e0bb26725.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.13.tar.xz
 
 #ENV PYTHON_SRC_URL https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz
