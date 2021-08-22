@@ -50,7 +50,6 @@ RUN apt update && \
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-Aug-2021-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV ARTIFACT_BASE /usr/local/hexagon-artifacts
-ARG ARTIFACT_TAG=untagged
 ENV MAKE_TARBALLS 1
 #ENV HOST_LLVM_VERSION 10
 #ENV CMAKE_VER 3.16.6
@@ -76,6 +75,7 @@ ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.13.tar.xz
 ADD get-src-tarballs.sh /root/hexagon-toolchain/get-src-tarballs.sh
 RUN cd /root/hexagon-toolchain && ./get-src-tarballs.sh ${PWD} ${TOOLCHAIN_INSTALL}/manifest
 
+ARG ARTIFACT_TAG=untagged
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
 RUN cd /root/hexagon-toolchain && ./build-toolchain.sh Aug-2021
 

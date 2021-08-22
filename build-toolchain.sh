@@ -251,7 +251,19 @@ RESULTS_DIR_=${ARTIFACT_BASE}/${ARTIFACT_TAG}
 mkdir -p ${RESULTS_DIR_}
 RESULTS_DIR=$(readlink -f ${RESULTS_DIR_})
 
+if [[ ! -d ${RESULTS_DIR} ]]; then
+    echo err results dir "${RESULTS_DIR}" not found or not a dir
+    exit 3
+fi
+
+REL_NAME=$(basename ${TOOLCHAIN_INSTALL_REL})
 BASE=$(readlink -f ${PWD})
+
+if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
+    echo toolchain will be placed in ${RESULTS_DIR}/${REL_NAME}.tar.xz
+    echo creating empty file there as a test:
+    echo '' > ${RESULTS_DIR}/${REL_NAME}.tar.xz
+fi
 
 ccache --show-stats
 
@@ -285,7 +297,6 @@ build_qemu
 
 cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
-    REL_NAME=$(basename ${TOOLCHAIN_INSTALL_REL})
 #   XZ_OPT="-e9T0" tar cJf ${RESULTS_DIR}/${REL_NAME}.tar.xz -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}
     tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME} | xz -e9T0 > ${RESULTS_DIR}/${REL_NAME}.tar.xz
     sha256sum ${RESULTS_DIR}/${REL_NAME}.tar.xz > ${RESULTS_DIR}/${REL_NAME}.tar.xz.sha256
