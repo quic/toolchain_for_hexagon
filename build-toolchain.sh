@@ -299,5 +299,6 @@ cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
 #   XZ_OPT="-e9T0" tar cJf ${RESULTS_DIR}/${REL_NAME}.tar.xz -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}
     tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME} | xz -e9T0 > ${RESULTS_DIR}/${REL_NAME}.tar.xz
-    sha256sum ${RESULTS_DIR}/${REL_NAME}.tar.xz > ${RESULTS_DIR}/${REL_NAME}.tar.xz.sha256
+#   sha256sum ${RESULTS_DIR}/${REL_NAME}.tar.xz > ${RESULTS_DIR}/${REL_NAME}.tar.xz.sha256
+    sha256sum ${RESULTS_DIR}/${REL_NAME}.tar.xz > ${RESULTS_DIR}/${REL_NAME}.tar.xz_sig_ature
 fi
