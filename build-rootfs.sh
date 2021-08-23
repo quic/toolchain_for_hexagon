@@ -195,12 +195,11 @@ if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
 #   XZ_OPT="-8 --threads=0" tar c ${RESULTS_DIR}/hexagon_rootfs_${STAMP}.tar.xz  -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL})
 
     cd ${RESULTS_DIR}
-#   sha256sum hexagon_rootfs_${STAMP}.tar.xz > hexagon_rootfs_${STAMP}.tar.xz.sha256
-    sha256sum hexagon_rootfs_${STAMP}.tar.xz > hexagon_rootfs_${STAMP}.tar.xz_sig_ature
+    sha256sum hexagon_rootfs_${STAMP}.tar.xz > hexagon_rootfs_${STAMP}.tar.xz.sha256
 fi
 
 if [[ ${TEST_TOOLCHAIN-0} -eq 0 ]]; then
-		rm -rf ${BASE}/obj_*
+    rm -rf ${BASE}/obj_*
     rm -rf ${ROOT_INSTALL}
     rm -rf ${TOOLCHAIN_INSTALL}
 fi
