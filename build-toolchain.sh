@@ -13,7 +13,7 @@ build_llvm_clang() {
 	CC=clang CXX=clang++ cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX:PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/ \
-		-DLLVM_CCACHE_BUILD:BOOL=ON \
+		-DLLVM_CCACHE_BUILD:BOOL=OFF \
 		-DLLVM_ENABLE_LLD:BOOL=ON \
 		-DLLVM_ENABLE_LIBCXX:BOOL=ON \
 		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
@@ -45,7 +45,8 @@ build_clang_rt() {
 	cd obj_clang_rt
 	cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_CONFIG_PATH:PATH=../obj_llvm/bin/llvm-config \
+		-DLLVM_CONFIG_PATH:PATH=${TOOLCHAIN_BIN}/llvm-config \
+		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=OFF \
 		-DCMAKE_ASM_FLAGS:STRING="-G0 -mlong-calls -fno-pic" \
 		-DCMAKE_SYSTEM_NAME:STRING=Linux \
 		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
@@ -143,7 +144,8 @@ build_libs() {
 	cd obj_libs
 	cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_CONFIG_PATH:PATH=../obj_llvm/bin/llvm-config \
+		-DLLVM_CONFIG_PATH:PATH=${TOOLCHAIN_BIN}/llvm-config \
+		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=OFF \
 		-DCMAKE_SYSTEM_NAME:STRING=Linux \
 		-DCMAKE_EXE_LINKER_FLAGS:STRING="-lclang_rt.builtins-hexagon -nostdlib" \
 		-DCMAKE_SHARED_LINKER_FLAGS:STRING="-lclang_rt.builtins-hexagon -nostdlib" \
@@ -180,7 +182,8 @@ build_sanitizers() {
 	cd obj_san
 	cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_CONFIG_PATH:PATH=../obj_llvm/bin/llvm-config \
+		-DLLVM_CONFIG_PATH:PATH=${TOOLCHAIN_BIN}/llvm-config \
+		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=OFF \
 		-DCMAKE_ASM_FLAGS:STRING="-G0 -mlong-calls" \
 		-DCMAKE_SYSTEM_NAME:STRING=Linux \
 		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
@@ -268,7 +271,7 @@ fi
 ccache --show-stats
 
 
-MUSL_CFLAGS="-G0 -O0 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl"
+MUSL_CFLAGS="-G0 -O2 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl"
 
 # Workaround, 'C()' macro results in switch over bool:
 MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-switch-bool"
@@ -299,7 +302,6 @@ cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
 #   XZ_OPT="-e9T0" tar cJf ${RESULTS_DIR}/${REL_NAME}.tar.xz -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}
     tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME} | xz -e9T0 > ${RESULTS_DIR}/${REL_NAME}.tar.xz
-#   sha256sum ${RESULTS_DIR}/${REL_NAME}.tar.xz > ${RESULTS_DIR}/${REL_NAME}.tar.xz.sha256
     cd ${RESULTS_DIR}
-    sha256sum ${REL_NAME}.tar.xz > ${REL_NAME}.tar.xz.sha256
+    sha256sum ${REL_NAME}.tar.xz | tee ${REL_NAME}.tar.xz.sha256
 fi
