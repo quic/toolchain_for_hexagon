@@ -73,15 +73,19 @@ build_canadian_clang() {
 	cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX:PATH=${ROOTFS} \
-		-DLLVM_CCACHE_BUILD:BOOL=OFF \
+		-DLLVM_CCACHE_BUILD:BOOL=ON \
 		-DLLVM_ENABLE_LIBCXX:BOOL=ON \
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
+		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		-DCMAKE_SYSTEM_NAME:STRING=Linux \
 		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
 		-DCMAKE_ASM_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
 		-DCMAKE_CXX_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang++" \
 		-DLLVM_TABLEGEN=${TOOLCHAIN_BIN}/llvm-tblgen \
+		-DCLANG_TABLEGEN=${BASE}/obj_llvm/bin/clang-tblgen \
+		-DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF \
+		-DLLVM_BUILD_BENCHMARKS:BOOL=OFF \
 		-DCMAKE_C_FLAGS:STRING="-G0 -mlong-calls --target=hexagon-unknown-linux-musl " \
 		-DCMAKE_CXX_FLAGS:STRING="-G0 -mlong-calls --target=hexagon-unknown-linux-musl " \
 		-DLLVM_DEFAULT_TARGET_TRIPLE=hexagon-unknown-linux-musl \
@@ -91,16 +95,15 @@ build_canadian_clang() {
 		-DLLVM_INCLUDE_TESTS:BOOL=OFF \
 		-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF \
 		-DLLVM_INCLUDE_UTILS:BOOL=OFF \
-                -DHAVE_STEADY_CLOCK:BOOL=OFF \
-                -DHAVE_POSIX_REGEX:BOOL=OFF \
-                -DLLVM_ENABLE_PIC:BOOL=OFF \
+		-DHAVE_STEADY_CLOCK:BOOL=OFF \
+		-DHAVE_POSIX_REGEX:BOOL=OFF \
+		-DLLVM_ENABLE_PIC:BOOL=OFF \
 		-DLLVM_TARGETS_TO_BUILD:STRING="Hexagon" \
 		-DLLVM_ENABLE_PROJECTS:STRING="clang;lld" \
 		../llvm-project/llvm
 
         ninja -v
         ninja -v install
-
 }
 
 build_dropbear() {
@@ -174,10 +177,7 @@ build_busybox
 #build_dropbear
 #build_cpython
 
-# Recipe still needs tweaks:
-#	ld.lld: error: crt1.c:(function _start_c: .text._start_c+0x5C): relocation R_HEX_B22_PCREL out of range: 2688980 is not in [-2097152, 2097151]; references __libc_start_main
-#	>>> defined in ... hexagon-unknown-linux-musl/usr/lib/libc.so
-#build_canadian_clang
+build_canadian_clang
 
 cat <<'EOF' > ${ROOTFS}/init
 #!/bin/sh
