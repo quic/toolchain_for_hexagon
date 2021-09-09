@@ -4,16 +4,21 @@ STAMP=${1-$(date +"%Y_%b_%d")}
 
 set -euo pipefail
 
+#OPT=ReleaseThinLTO
+OPT=Debug
+OPT=Os
+OPT=O3
 test_llvm() {
 	cd ${BASE}
-	mkdir -p obj_test-suite
-	cd obj_test-suite
+	mkdir -p obj_test-suite_${OPT}
+	cd obj_test-suite_${OPT}
 
 	cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-C../llvm-test-suite/cmake/caches/O3.cmake \
+		-C../llvm-test-suite/cmake/caches/${OPT}.cmake \
 		-DTEST_SUITE_CXX_ABI:STRING=libc++abi \
 		-DTEST_SUITE_RUN_UNDER:STRING="${TOOLCHAIN_BIN}/qemu_wrapper.sh" \
+		-DTEST_SUITE_USER_MODE_EMULATION:BOOL=ON \
 		-DTEST_SUITE_RUN_BENCHMARKS:BOOL=ON \
 		-DTEST_SUITE_LIT_FLAGS:STRING="--max-tests=10" \
 		-DTEST_SUITE_LIT:FILEPATH="${BASE}/obj_llvm/bin/llvm-lit" \
