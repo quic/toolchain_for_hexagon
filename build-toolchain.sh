@@ -26,7 +26,7 @@ build_llvm_clang() {
 		-DCLANG_DEFAULT_OBJCOPY:STRING="llvm-objcopy" \
 		-DCLANG_DEFAULT_LINKER:STRING="lld" \
 		-DDEFAULT_SYSROOT:STRING="../target/hexagon-unknown-linux-musl/" \
-		-DLLVM_ENABLE_PROJECTS:STRING="clang;lld" \
+		-DLLVM_ENABLE_PROJECTS:STRING="clang;lld;clang-tools-extra" \
 		../llvm-project/llvm
  	ninja all install
 	cd ${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
