@@ -3,18 +3,21 @@ FROM ubuntu:16.04
 
 ENV HOST_CLANG_VER 12
 
+ADD deadsnakes.gpg /tmp
+
 # Install common build utilities
 RUN apt update && \
     DEBIAN_FRONTEND=noninteractive apt install -yy \
 	apt-transport-https ca-certificates \
         eatmydata software-properties-common wget gpgv2 unzip && \
+    apt-key add < /tmp/deadsnakes.gpg && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
-        add-apt-repository ppa:deadsnakes/ppa && \
+        add-apt-repository --yes ppa:deadsnakes/ppa && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
 	wget https://apt.llvm.org/llvm.sh && \
 	chmod +x ./llvm.sh && \
 	bash -x ./llvm.sh  ${HOST_CLANG_VER} && \
-	wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && \
+	wget --quiet https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && \
 	unzip -d /usr/local/bin ninja-linux.zip && \
 	update-alternatives --install /usr/bin/ninja ninja /usr/local/bin/ninja 1 --force && \
 	wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - > /usr/share/keyrings/kitware-archive-keyring.gpg && \
@@ -59,7 +62,8 @@ ENV MAKE_TARBALLS 1
 # cc38f8939da4aec85e7d0ef4de412e30d4de5a14 ~July 2021, after hexagon_types.h update
 # 68ab571e22e7dadf1262bba415e1365105d07a65 ~Aug 2021, after sanitizer update
 # 7a3d54a2179c6230c13f90e892b2ffae744d705d Sept 2021
-ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/7a3d54a2179c6230c13f90e892b2ffae744d705d.tar.gz
+# e420164f40a907643db40e65fff51a6041d40090 Oct 2021
+ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/e420164f40a907643db40e65fff51a6041d40090.tar.gz
 # 15106f7dc3290ff3254611f265849a314a93eb0e qemu/qemu 2 May 2021, hexagon scalar core support
 # 628eea52b33dae2ea2112c85c2c95e9f8832b846 quic/qemu 23 Apr 2021, latest hexagon core + HVX support
 # 0a0f70dd3bec32212e7996feb8371788bc00d183 quic/qemu 3 Jul 2021, bugfixes
