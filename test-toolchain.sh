@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#  Copyright (c) 2021, Qualcomm Innovation Center, Inc. All rights reserved.
+#  SPDX-License-Identifier: BSD-3-Clause
+
 STAMP=${1-$(date +"%Y_%b_%d")}
 
 set -euo pipefail
