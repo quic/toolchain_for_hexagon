@@ -50,7 +50,7 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt build-dep -yy --arch-only qemu clang python
 
-ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-Sept-2021-cross-hexagon-unknown-linux-musl/
+ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-13.0.0-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV ARTIFACT_BASE /usr/local/hexagon-artifacts
 ENV MAKE_TARBALLS 1
@@ -58,12 +58,7 @@ ENV MAKE_TARBALLS 1
 #ENV CMAKE_VER 3.16.6
 #ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-Linux-x86_64.tar.gz
 
-# 630818a850f754af852247c775280de6fde8560e ~April 2021, after cs0/cs1 update
-# cc38f8939da4aec85e7d0ef4de412e30d4de5a14 ~July 2021, after hexagon_types.h update
-# 68ab571e22e7dadf1262bba415e1365105d07a65 ~Aug 2021, after sanitizer update
-# 7a3d54a2179c6230c13f90e892b2ffae744d705d Sept 2021
-# e420164f40a907643db40e65fff51a6041d40090 Oct 2021
-ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/e420164f40a907643db40e65fff51a6041d40090.tar.gz
+ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-13.0.0.tar.gz
 # 15106f7dc3290ff3254611f265849a314a93eb0e qemu/qemu 2 May 2021, hexagon scalar core support
 # 628eea52b33dae2ea2112c85c2c95e9f8832b846 quic/qemu 23 Apr 2021, latest hexagon core + HVX support
 # 0a0f70dd3bec32212e7996feb8371788bc00d183 quic/qemu 3 Jul 2021, bugfixes
@@ -83,7 +78,7 @@ RUN cd /root/hexagon-toolchain && ./get-src-tarballs.sh ${PWD} ${TOOLCHAIN_INSTA
 
 ARG ARTIFACT_TAG=untagged
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
-RUN cd /root/hexagon-toolchain && ./build-toolchain.sh Sept-2021
+RUN cd /root/hexagon-toolchain && ./build-toolchain.sh 13.0.0
 
 ARG TEST_TOOLCHAIN=1
 
