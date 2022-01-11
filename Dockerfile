@@ -59,7 +59,7 @@ ENV MAKE_TARBALLS 1
 # cc38f8939da4aec85e7d0ef4de412e30d4de5a14 ~July 2021, after hexagon_types.h update
 # 68ab571e22e7dadf1262bba415e1365105d07a65 ~Aug 2021, after sanitizer update
 # 7a3d54a2179c6230c13f90e892b2ffae744d705d Sept 2021
-ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/7a3d54a2179c6230c13f90e892b2ffae744d705d.tar.gz
+ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-13.0.1-rc1.tar.gz
 # 15106f7dc3290ff3254611f265849a314a93eb0e qemu/qemu 2 May 2021, hexagon scalar core support
 # 628eea52b33dae2ea2112c85c2c95e9f8832b846 quic/qemu 23 Apr 2021, latest hexagon core + HVX support
 # 0a0f70dd3bec32212e7996feb8371788bc00d183 quic/qemu 3 Jul 2021, bugfixes
