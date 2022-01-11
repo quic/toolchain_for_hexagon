@@ -274,7 +274,7 @@ fi
 ccache --show-stats
 
 
-MUSL_CFLAGS="-G0 -O2 -mv65 -fno-builtin -mlong-calls --target=hexagon-unknown-linux-musl"
+MUSL_CFLAGS="-G0 -O0 -mv65 -fno-builtin -mlong-calls --target=hexagon-unknown-linux-musl"
 
 # Workaround, 'C()' macro results in switch over bool:
 MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-switch-bool"
