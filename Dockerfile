@@ -1,5 +1,5 @@
 
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 ENV HOST_CLANG_VER 12
 
@@ -18,7 +18,7 @@ RUN apt update && \
 	unzip -d /usr/local/bin ninja-linux.zip && \
 	update-alternatives --install /usr/bin/ninja ninja /usr/local/bin/ninja 1 --force && \
 	wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - > /usr/share/keyrings/kitware-archive-keyring.gpg && \
-	echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ xenial main' > /etc/apt/sources.list.d/kitware.list && \
+	echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ bionic main' > /etc/apt/sources.list.d/kitware.list && \
 	update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${HOST_CLANG_VER} 100 && \
 	update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${HOST_CLANG_VER} 100 && \
     DEBIAN_FRONTEND=noninteractive eatmydata apt update && \
