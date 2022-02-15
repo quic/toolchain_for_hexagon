@@ -76,7 +76,7 @@ RUN cd /root/hexagon-toolchain && ./get-src-tarballs.sh ${PWD} ${TOOLCHAIN_INSTA
 
 ARG ARTIFACT_TAG=${VER}
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
-RUN cd /root/hexagon-toolchain && ./build-toolchain.sh ${VER}
+RUN cd /root/hexagon-toolchain && ./build-toolchain.sh 14.0.0-rc1
 
 ARG TEST_TOOLCHAIN=1
 
