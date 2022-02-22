@@ -55,7 +55,6 @@ build_clang_rt() {
 		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
 		-DCMAKE_ASM_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
 		-DCOMPILER_RT_EMULATOR:STRING="${TOOLCHAIN_BIN}/qemu_wrapper.sh" \
-		-DCOMPILER_RT_CAN_EXECUTE_TESTS:BOOL=ON \
 		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
@@ -155,17 +154,10 @@ build_libs() {
 		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
 		-DCMAKE_CXX_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang++" \
 		-DCMAKE_ASM_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF \
-		-DLLVM_BUILD_BENCHMARKS:BOOL=OFF \
-		-DLLVM_INCLUDE_RUNTIMES:BOOL=OFF \
-		-DLLVM_PYTHON_EXECUTABLE:STRING=$(which python3.6) \
-		-DLLVM_ENABLE_PROJECTS:STRING="libcxx;libcxxabi;libunwind" \
-		-DLLVM_ENABLE_LIBCXX:BOOL=ON \
-		-DLLVM_BUILD_RUNTIME:BOOL=ON \
+		-DLIBCXX_INCLUDE_BENCHMARKS:BOOL=OFF \
+		-DLLVM_ENABLE_RUNTIMES:STRING="libcxx;libcxxabi;libunwind;compiler-rt" \
 		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
-		-DHAVE_CXX_ATOMICS_WITHOUT_LIB:BOOL=ON \
-		-DHAVE_CXX_ATOMICS64_WITHOUT_LIB:BOOL=ON \
 		-DLIBCXX_HAS_MUSL_LIBC:BOOL=ON \
 		-DLIBCXX_INCLUDE_TESTS:BOOL=OFF \
 		-DLIBCXX_CXX_ABI=libcxxabi \
@@ -173,10 +165,11 @@ build_libs() {
 		-DLIBCXXABI_HAS_CXA_THREAD_ATEXIT_IMPL=OFF \
 		-DLIBCXXABI_ENABLE_SHARED:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
-		../llvm-project/llvm
+		../llvm-project/runtimes
 	ninja -v install-unwind
 	ninja -v install-cxxabi
 	ninja -v install-cxx
+	ninja -v install-compiler-rt
 }
 
 build_sanitizers() {
@@ -297,7 +290,7 @@ build_clang_rt
 build_musl
 
 build_libs
-build_sanitizers
+#build_sanitizers
 
 build_qemu
 
