@@ -1,0 +1,27 @@
+From a416659b7f17cf7d5286ce6133f81f42be026a62 Mon Sep 17 00:00:00 2001
+From: Brian Cain <bcain@quicinc.com>
+Date: Tue, 22 Feb 2022 10:40:10 -0800
+Subject: [PATCH] Add cycle read for hexagon
+
+---
+ MicroBenchmarks/libs/benchmark/src/cycleclock.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/MicroBenchmarks/libs/benchmark/src/cycleclock.h b/MicroBenchmarks/libs/benchmark/src/cycleclock.h
+index f22ca9f7..3be85693 100644
+--- a/MicroBenchmarks/libs/benchmark/src/cycleclock.h
++++ b/MicroBenchmarks/libs/benchmark/src/cycleclock.h
+@@ -104,6 +104,10 @@ inline BENCHMARK_ALWAYS_INLINE int64_t Now() {
+   asm(".byte 0x83, 0x41, 0x00, 0x00");
+   asm("mov   %%g1, %0" : "=r"(tick));
+   return tick;
++#elif defined(__hexagon__)
++  uint64_t cycles;
++  __asm__ volatile("%0 = upcycle" : "=r"(cycles));
++  return cycles;
+ #elif defined(__ia64__)
+   int64_t itc;
+   asm("mov %0 = ar.itc" : "=r"(itc));
+-- 
+2.17.1
+
