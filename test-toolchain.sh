@@ -4,26 +4,33 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 
 STAMP=${1-$(date +"%Y_%b_%d")}
+LLVM_TS_PER_TEST_TIMEOUT_SEC=$((10 * 60))
+
+# For now let's limit the scope of this test suite
+LLVM_TS_LIMIT=400
 
 set -euo pipefail
 
-#OPT=ReleaseThinLTO
-OPT=Debug
-OPT=Os
-OPT=O3
 test_llvm() {
+	OPT_CMAKE=${1}
+	if [[ ${OPT_CMAKE} == '' ]]; then
+		OPT_FLAVOR='default'
+		OPT_CMAKE_CMDLINE=""
+	else
+		OPT_FLAVOR=$(basename -- "${OPT_CMAKE}" .cmake)
+		OPT_CMAKE_CMDLINE="-C ${OPT_CMAKE}"
+	fi
 	cd ${BASE}
-	mkdir -p obj_test-suite_${OPT}
-	cd obj_test-suite_${OPT}
+	mkdir -p obj_test-suite_${OPT_FLAVOR}
+	cd obj_test-suite_${OPT_FLAVOR}
 
 	cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-C../llvm-test-suite/cmake/caches/${OPT}.cmake \
+		${OPT_CMAKE_CMDLINE} \
 		-DTEST_SUITE_CXX_ABI:STRING=libc++abi \
 		-DTEST_SUITE_RUN_UNDER:STRING="${TOOLCHAIN_BIN}/qemu_wrapper.sh" \
 		-DTEST_SUITE_USER_MODE_EMULATION:BOOL=ON \
 		-DTEST_SUITE_RUN_BENCHMARKS:BOOL=ON \
-		-DTEST_SUITE_LIT_FLAGS:STRING="--max-tests=10" \
 		-DTEST_SUITE_LIT:FILEPATH="${BASE}/obj_llvm/bin/llvm-lit" \
 		-DBENCHMARK_USE_LIBCXX:BOOL=ON \
 		-DCMAKE_SYSTEM_NAME:STRING=Linux \
@@ -31,35 +38,35 @@ test_llvm() {
 		-DCMAKE_CXX_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang++" \
 		-DSMALL_PROBLEM_SIZE:BOOL=ON \
 		../llvm-test-suite
-	ninja
-#	ninja check \ || /bin/true
-	${BASE}/obj_llvm/bin/llvm-lit -v --max-tests=40 . \
-	       	2>&1 | tee ${RESULTS_DIR}/llvm-test-suite.log || /bin/true
+	ninja -v -k 0
+#	ninja check
+	python3 ${BASE}/obj_llvm/bin/llvm-lit -v --max-tests=${LLVM_TS_LIMIT} \
+		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} .
+	llvm_result=${?}
 }
 
 test_qemu() {
 	cd ${BASE}
 	cd obj_qemu
 
-	make check V=1 --keep-going 2>&1 | tee ${RESULTS_DIR}/qemu_test_check.log
+	make check V=1 --keep-going
 	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin:$PATH \
 		QEMU_LD_PREFIX=${HEX_TOOLS_TARGET_BASE} \
 		CROSS_CFLAGS="-G0 -O0 -mv65 -fno-builtin" \
-		make check-tcg TIMEOUT=180 CROSS_CC_GUEST=hexagon-unknown-linux-musl-clang V=1 --keep-going 2>&1 | tee ${RESULTS_DIR}/qemu_test_check-tcg.log || /bin/true
+		make check-tcg TIMEOUT=180 CROSS_CC_GUEST=hexagon-unknown-linux-musl-clang V=1 --keep-going
 	qemu_result=${?}
 }
 
 test_libc() {
 	cd ${BASE}
-	mkdir obj_libc-test/
-	cd obj_libc-test
+	mkdir obj_test-libc
+	cd obj_test-libc
 
 	rm -f ../libc-test/config.mak
 	cat ../libc-test/config.mak.def - <<EOF >> ../libc-test/config.mak
 CFLAGS+=${MUSL_CFLAGS}
 EOF
 
-	set +e
 	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH \
 		CC=${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang \
 		QEMU_LD_PREFIX=${HEX_TOOLS_TARGET_BASE} \
@@ -71,7 +78,6 @@ EOF
 		RANLIB=llvm-ranlib \
 		RUN_WRAP=${TOOLCHAIN_BIN}/qemu_wrapper.sh
 	libc_result=${?}
-	set -e
 	cp ./REPORT ${RESULTS_DIR}/libc_test_REPORT
 	head ./REPORT $(find ${PWD} -name '*.err' | sort) > ${RESULTS_DIR}/libc_test_failures_err.log
 }
@@ -82,13 +88,13 @@ TOOLCHAIN_BIN=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
 HEX_SYSROOT=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-musl
 HEX_TOOLS_TARGET_BASE=${HEX_SYSROOT}/usr
 ROOT_INSTALL_REL=${ROOT_INSTALL}
-ROOTFS=$(readlink -f ${ROOT_INSTALL})
+#ROOTFS=$(readlink -f ${ROOT_INSTALL})
 RESULTS_DIR=$(readlink -f ${ARTIFACT_BASE}/${ARTIFACT_TAG})
 
 
 BASE=$(readlink -f ${PWD})
 
-MUSL_CFLAGS="-G0 -O0 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl"
+MUSL_CFLAGS="-G0 -O2 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl"
 
 # Workaround, 'C()' macro results in switch over bool:
 MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-switch-bool"
@@ -96,21 +102,30 @@ MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-switch-bool"
 # hexagon compiler backend:
 MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-unsupported-floating-point-opt"
 
+llvm_result=0
 libc_result=0
 qemu_result=0
 
+set -x
+
 if [[ ${TEST_TOOLCHAIN-0} -eq 1 ]]; then
-	# needs google benchmark changes to count hexagon cycles in order to build:
-	#test_llvm
-	# skipped for now
-	libc_result=99
-	#test_libc 2>&1 | tee ${RESULTS_DIR}/libc_test_detail.log
-	qemu_result=99
-	test_qemu
+	# needs google benchmark changes to count hexagon cycles
+	# in order to build, see ./test-suite-patches
+	set +e
+	for opt in CodeSize O0 MinSize
+	do
+		cmake=$(readlink -f llvm-test-suite/cmake/caches/${opt}.cmake)
+		test_llvm ${cmake} 2>&1 | tee ${RESULTS_DIR}/llvm-test-suite_${opt}.log
+	done
+	test_llvm '' 2>&1 | tee ${RESULTS_DIR}/llvm-test-suite_O2.log
+
+	test_libc 2>&1 | tee ${RESULTS_DIR}/libc_test_detail.log
+	test_qemu 2>&1 | tee ${RESULTS_DIR}/qemu_test_check-tcg.log
+	set -e
 fi
 
 echo done
+echo llvm: ${llvm_result}
 echo libc: ${libc_result}
 echo qemu: ${qemu_result}
-exit ${qemu_result}
-#exit $(( ${libc_result} + ${qemu_result} ))
+exit $(( ${libc_result} + ${qemu_result} + ${llvm_result} ))
