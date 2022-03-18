@@ -290,7 +290,7 @@ build_clang_rt
 build_musl
 
 build_libs
-#build_sanitizers
+build_sanitizers
 
 build_qemu
 
