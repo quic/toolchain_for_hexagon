@@ -85,12 +85,13 @@ build_canadian_clang() {
 		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
 		-DCMAKE_ASM_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
 		-DCMAKE_CXX_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang++" \
+		-DLLVM_CONFIG_PATH=${TOOLCHAIN_BIN}/llvm-config \
 		-DLLVM_TABLEGEN=${TOOLCHAIN_BIN}/llvm-tblgen \
 		-DCLANG_TABLEGEN=${BASE}/obj_llvm/bin/clang-tblgen \
 		-DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF \
 		-DLLVM_BUILD_BENCHMARKS:BOOL=OFF \
-		-DCMAKE_C_FLAGS:STRING="-G0 -mlong-calls --target=hexagon-unknown-linux-musl " \
-		-DCMAKE_CXX_FLAGS:STRING="-G0 -mlong-calls --target=hexagon-unknown-linux-musl " \
+		-DCMAKE_C_FLAGS:STRING="-G0 -mlong-calls" \
+		-DCMAKE_CXX_FLAGS:STRING="-G0 -mlong-calls" \
 		-DLLVM_DEFAULT_TARGET_TRIPLE=hexagon-unknown-linux-musl \
 		-DLLVM_TARGET_ARCH="Hexagon" \
 		-DLLVM_BUILD_RUNTIME:BOOL=OFF \
@@ -180,7 +181,7 @@ build_busybox
 #build_dropbear
 #build_cpython
 
-#build_canadian_clang
+build_canadian_clang
 
 cat <<'EOF' > ${ROOTFS}/init
 #!/bin/sh
