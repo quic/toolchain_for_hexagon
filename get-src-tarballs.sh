@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#  Copyright (c) 2021, Qualcomm Innovation Center, Inc. All rights reserved.
+#  Copyright (c) 2022, Qualcomm Innovation Center, Inc. All rights reserved.
 #  SPDX-License-Identifier: BSD-3-Clause
 
 set -euo pipefail
@@ -14,15 +14,14 @@ get_src_tarballs() {
 	cd llvm-project
 	tar xf ../llvm-project.tar.xz --strip-components=1
 	rm ../llvm-project.tar.xz
-  echo ${LLVM_SRC_URL} > ${MANIFEST_DIR}/llvm-project.txt
+	echo ${LLVM_SRC_URL} > ${MANIFEST_DIR}/llvm-project.txt
 	cd -
 
-  QEMU_REPO_=${QEMU_REPO-https://github.com/qemu/qemu}
-	git clone ${QEMU_REPO_}
+	wget --quiet ${QEMU_SRC_URL} -O qemu.tar.xz
+	mkdir qemu
 	cd qemu
-	git checkout  ${QEMU_SHA}
-  echo ${QEMU_REPO_} > ${MANIFEST_DIR}/qemu.txt
-  git log HEAD >> ${MANIFEST_DIR}/qemu.txt
+	tar xf ../qemu.tar.xz --strip-components=1
+	echo ${QEMU_SRC_URL} > ${MANIFEST_DIR}/qemu.txt
 	cd -
 
 	wget --quiet ${MUSL_SRC_URL} -O musl.tar.xz
@@ -30,17 +29,18 @@ get_src_tarballs() {
 	cd musl
 	tar xf ../musl.tar.xz --strip-components=1
 	rm ../musl.tar.xz
-  echo ${MUSL_SRC_URL} > ${MANIFEST_DIR}/musl.txt
+	echo ${MUSL_SRC_URL} > ${MANIFEST_DIR}/musl.txt
 	cd -
 
 	wget --quiet ${LINUX_SRC_URL} -O linux.tar.xz
 	mkdir linux
 	cd linux
 	tar xf ../linux.tar.xz --strip-components=1
-  echo ${LINUX_SRC_URL} > ${MANIFEST_DIR}/linux.txt
+	echo ${LINUX_SRC_URL} > ${MANIFEST_DIR}/linux.txt
 	cd -
 }
 
 SRC_DIR=${1}
 MANIFEST_DIR=${2}
+set -x
 get_src_tarballs

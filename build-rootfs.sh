@@ -181,7 +181,7 @@ build_busybox
 #build_dropbear
 #build_cpython
 
-build_canadian_clang
+#build_canadian_clang
 
 cat <<'EOF' > ${ROOTFS}/init
 #!/bin/sh
