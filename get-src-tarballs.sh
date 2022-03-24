@@ -21,6 +21,7 @@ get_src_tarballs() {
 	mkdir qemu
 	cd qemu
 	tar xf ../qemu.tar.xz --strip-components=1
+	rm ../qemu.tar.xz
 	echo ${QEMU_SRC_URL} > ${MANIFEST_DIR}/qemu.txt
 	cd -
 

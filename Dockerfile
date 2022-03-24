@@ -57,12 +57,9 @@ ENV MAKE_TARBALLS 1
 #ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-Linux-x86_64.tar.gz
 
 ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
-# 15106f7dc3290ff3254611f265849a314a93eb0e qemu/qemu 2 May 2021, hexagon scalar core support
-# 628eea52b33dae2ea2112c85c2c95e9f8832b846 quic/qemu 23 Apr 2021, latest hexagon core + HVX support
-# 0a0f70dd3bec32212e7996feb8371788bc00d183 quic/qemu 3 Jul 2021, bugfixes
-# 4232d60779e9df29feb21a6fe09acb872a92135c quic/qemu Sept 2021 gdb fix
-ARG QEMU_REPO=https://github.com/quic/qemu
-ARG QEMU_SHA=master
+#ARG QEMU_REPO=https://github.com/quic/qemu
+#ARG QEMU_SHA=master
+ARG QEMU_SRC_URL=https://download.qemu.org/qemu-6.2.0.tar.xz
 
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/7243e0d3a9d7e0f08d21fc194a05749e0bb26725.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.14.tar.xz
