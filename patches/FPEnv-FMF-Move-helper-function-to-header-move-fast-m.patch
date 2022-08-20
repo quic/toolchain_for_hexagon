@@ -1,0 +1,310 @@
+From 8290f2535ba03120160881ca47e8466cbf7a8b26 Mon Sep 17 00:00:00 2001
+From: "Kevin P. Neal" <kevin.neal@sas.com>
+Date: Mon, 14 Feb 2022 11:49:43 -0500
+Subject: [PATCH] [FPEnv][FMF] Move helper function to header, move fast math
+ flags to new include file.
+
+In a prior review I was asked to move the helper function canIgnoreSNaN()
+out to FPEnv.h. This wasn't possible at the time because that function
+needs the fast math flags, and including them includes lots of other stuff
+that isn't needed.
+
+This patch moves the fast math flags out into a new FMF.h file unchanged,
+and moves the helper function out to FPEnv.h also unchanged. This ticket
+only moves code around.
+
+Differential Revision: https://reviews.llvm.org/D119752
+---
+ llvm/include/llvm/IR/FMF.h                | 119 ++++++++++++++++++++++
+ llvm/include/llvm/IR/FPEnv.h              |   7 ++
+ llvm/include/llvm/IR/Operator.h           | 100 +-----------------
+ llvm/lib/Analysis/InstructionSimplify.cpp |   5 -
+ 4 files changed, 127 insertions(+), 104 deletions(-)
+ create mode 100644 llvm/include/llvm/IR/FMF.h
+
+diff --git a/llvm/include/llvm/IR/FMF.h b/llvm/include/llvm/IR/FMF.h
+new file mode 100644
+index 000000000000..785b0cd20571
+--- /dev/null
++++ b/llvm/include/llvm/IR/FMF.h
+@@ -0,0 +1,119 @@
++//===-- llvm/FMF.h - Fast math flags subclass -------------------*- C++ -*-===//
++//
++// Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
++// See https://llvm.org/LICENSE.txt for license information.
++// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
++//
++//===----------------------------------------------------------------------===//
++//
++// This file defines the fast math flags.
++//
++//===----------------------------------------------------------------------===//
++
++#ifndef LLVM_IR_FMF_H
++#define LLVM_IR_FMF_H
++
++namespace llvm {
++
++/// Convenience struct for specifying and reasoning about fast-math flags.
++class FastMathFlags {
++private:
++  friend class FPMathOperator;
++
++  unsigned Flags = 0;
++
++  FastMathFlags(unsigned F) {
++    // If all 7 bits are set, turn this into -1. If the number of bits grows,
++    // this must be updated. This is intended to provide some forward binary
++    // compatibility insurance for the meaning of 'fast' in case bits are added.
++    if (F == 0x7F) Flags = ~0U;
++    else Flags = F;
++  }
++
++public:
++  // This is how the bits are used in Value::SubclassOptionalData so they
++  // should fit there too.
++  // WARNING: We're out of space. SubclassOptionalData only has 7 bits. New
++  // functionality will require a change in how this information is stored.
++  enum {
++    AllowReassoc    = (1 << 0),
++    NoNaNs          = (1 << 1),
++    NoInfs          = (1 << 2),
++    NoSignedZeros   = (1 << 3),
++    AllowReciprocal = (1 << 4),
++    AllowContract   = (1 << 5),
++    ApproxFunc      = (1 << 6)
++  };
++
++  FastMathFlags() = default;
++
++  static FastMathFlags getFast() {
++    FastMathFlags FMF;
++    FMF.setFast();
++    return FMF;
++  }
++
++  bool any() const { return Flags != 0; }
++  bool none() const { return Flags == 0; }
++  bool all() const { return Flags == ~0U; }
++
++  void clear() { Flags = 0; }
++  void set()   { Flags = ~0U; }
++
++  /// Flag queries
++  bool allowReassoc() const    { return 0 != (Flags & AllowReassoc); }
++  bool noNaNs() const          { return 0 != (Flags & NoNaNs); }
++  bool noInfs() const          { return 0 != (Flags & NoInfs); }
++  bool noSignedZeros() const   { return 0 != (Flags & NoSignedZeros); }
++  bool allowReciprocal() const { return 0 != (Flags & AllowReciprocal); }
++  bool allowContract() const   { return 0 != (Flags & AllowContract); }
++  bool approxFunc() const      { return 0 != (Flags & ApproxFunc); }
++  /// 'Fast' means all bits are set.
++  bool isFast() const          { return all(); }
++
++  /// Flag setters
++  void setAllowReassoc(bool B = true) {
++    Flags = (Flags & ~AllowReassoc) | B * AllowReassoc;
++  }
++  void setNoNaNs(bool B = true) {
++    Flags = (Flags & ~NoNaNs) | B * NoNaNs;
++  }
++  void setNoInfs(bool B = true) {
++    Flags = (Flags & ~NoInfs) | B * NoInfs;
++  }
++  void setNoSignedZeros(bool B = true) {
++    Flags = (Flags & ~NoSignedZeros) | B * NoSignedZeros;
++  }
++  void setAllowReciprocal(bool B = true) {
++    Flags = (Flags & ~AllowReciprocal) | B * AllowReciprocal;
++  }
++  void setAllowContract(bool B = true) {
++    Flags = (Flags & ~AllowContract) | B * AllowContract;
++  }
++  void setApproxFunc(bool B = true) {
++    Flags = (Flags & ~ApproxFunc) | B * ApproxFunc;
++  }
++  void setFast(bool B = true) { B ? set() : clear(); }
++
++  void operator&=(const FastMathFlags &OtherFlags) {
++    Flags &= OtherFlags.Flags;
++  }
++  void operator|=(const FastMathFlags &OtherFlags) {
++    Flags |= OtherFlags.Flags;
++  }
++  bool operator!=(const FastMathFlags &OtherFlags) const {
++    return Flags != OtherFlags.Flags;
++  }
++
++  /// Print fast-math flags to \p O.
++  void print(raw_ostream &O) const;
++};
++
++inline raw_ostream &operator<<(raw_ostream &O, FastMathFlags FMF) {
++  FMF.print(O);
++  return O;
++}
++
++} // end namespace llvm
++
++#endif // LLVM_IR_FMF_H
+diff --git a/llvm/include/llvm/IR/FPEnv.h b/llvm/include/llvm/IR/FPEnv.h
+index bf435ec6d109..cbcba37c3bb8 100644
+--- a/llvm/include/llvm/IR/FPEnv.h
++++ b/llvm/include/llvm/IR/FPEnv.h
+@@ -17,6 +17,7 @@
+ 
+ #include "llvm/ADT/FloatingPointMode.h"
+ #include "llvm/ADT/Optional.h"
++#include "llvm/IR/FMF.h"
+ 
+ namespace llvm {
+ class StringRef;
+@@ -64,5 +65,11 @@ inline bool isDefaultFPEnvironment(fp::ExceptionBehavior EB, RoundingMode RM) {
+ inline bool canRoundingModeBe(RoundingMode RM, RoundingMode QRM) {
+   return RM == QRM || RM == RoundingMode::Dynamic;
+ }
++
++/// Returns true if the possibility of a signaling NaN can be safely
++/// ignored.
++inline bool canIgnoreSNaN(fp::ExceptionBehavior EB, FastMathFlags FMF) {
++  return (EB == fp::ebIgnore || FMF.noNaNs());
++}
+ }
+ #endif
+diff --git a/llvm/include/llvm/IR/Operator.h b/llvm/include/llvm/IR/Operator.h
+index 7d232bba0864..1a234e273eff 100644
+--- a/llvm/include/llvm/IR/Operator.h
++++ b/llvm/include/llvm/IR/Operator.h
+@@ -18,6 +18,7 @@
+ #include "llvm/ADT/None.h"
+ #include "llvm/ADT/Optional.h"
+ #include "llvm/IR/Constants.h"
++#include "llvm/IR/FMF.h"
+ #include "llvm/IR/Instruction.h"
+ #include "llvm/IR/Type.h"
+ #include "llvm/IR/Value.h"
+@@ -161,105 +162,6 @@ public:
+   }
+ };
+ 
+-/// Convenience struct for specifying and reasoning about fast-math flags.
+-class FastMathFlags {
+-private:
+-  friend class FPMathOperator;
+-
+-  unsigned Flags = 0;
+-
+-  FastMathFlags(unsigned F) {
+-    // If all 7 bits are set, turn this into -1. If the number of bits grows,
+-    // this must be updated. This is intended to provide some forward binary
+-    // compatibility insurance for the meaning of 'fast' in case bits are added.
+-    if (F == 0x7F) Flags = ~0U;
+-    else Flags = F;
+-  }
+-
+-public:
+-  // This is how the bits are used in Value::SubclassOptionalData so they
+-  // should fit there too.
+-  // WARNING: We're out of space. SubclassOptionalData only has 7 bits. New
+-  // functionality will require a change in how this information is stored.
+-  enum {
+-    AllowReassoc    = (1 << 0),
+-    NoNaNs          = (1 << 1),
+-    NoInfs          = (1 << 2),
+-    NoSignedZeros   = (1 << 3),
+-    AllowReciprocal = (1 << 4),
+-    AllowContract   = (1 << 5),
+-    ApproxFunc      = (1 << 6)
+-  };
+-
+-  FastMathFlags() = default;
+-
+-  static FastMathFlags getFast() {
+-    FastMathFlags FMF;
+-    FMF.setFast();
+-    return FMF;
+-  }
+-
+-  bool any() const { return Flags != 0; }
+-  bool none() const { return Flags == 0; }
+-  bool all() const { return Flags == ~0U; }
+-
+-  void clear() { Flags = 0; }
+-  void set()   { Flags = ~0U; }
+-
+-  /// Flag queries
+-  bool allowReassoc() const    { return 0 != (Flags & AllowReassoc); }
+-  bool noNaNs() const          { return 0 != (Flags & NoNaNs); }
+-  bool noInfs() const          { return 0 != (Flags & NoInfs); }
+-  bool noSignedZeros() const   { return 0 != (Flags & NoSignedZeros); }
+-  bool allowReciprocal() const { return 0 != (Flags & AllowReciprocal); }
+-  bool allowContract() const   { return 0 != (Flags & AllowContract); }
+-  bool approxFunc() const      { return 0 != (Flags & ApproxFunc); }
+-  /// 'Fast' means all bits are set.
+-  bool isFast() const          { return all(); }
+-
+-  /// Flag setters
+-  void setAllowReassoc(bool B = true) {
+-    Flags = (Flags & ~AllowReassoc) | B * AllowReassoc;
+-  }
+-  void setNoNaNs(bool B = true) {
+-    Flags = (Flags & ~NoNaNs) | B * NoNaNs;
+-  }
+-  void setNoInfs(bool B = true) {
+-    Flags = (Flags & ~NoInfs) | B * NoInfs;
+-  }
+-  void setNoSignedZeros(bool B = true) {
+-    Flags = (Flags & ~NoSignedZeros) | B * NoSignedZeros;
+-  }
+-  void setAllowReciprocal(bool B = true) {
+-    Flags = (Flags & ~AllowReciprocal) | B * AllowReciprocal;
+-  }
+-  void setAllowContract(bool B = true) {
+-    Flags = (Flags & ~AllowContract) | B * AllowContract;
+-  }
+-  void setApproxFunc(bool B = true) {
+-    Flags = (Flags & ~ApproxFunc) | B * ApproxFunc;
+-  }
+-  void setFast(bool B = true) { B ? set() : clear(); }
+-
+-  void operator&=(const FastMathFlags &OtherFlags) {
+-    Flags &= OtherFlags.Flags;
+-  }
+-  void operator|=(const FastMathFlags &OtherFlags) {
+-    Flags |= OtherFlags.Flags;
+-  }
+-  bool operator!=(const FastMathFlags &OtherFlags) const {
+-    return Flags != OtherFlags.Flags;
+-  }
+-
+-  /// Print fast-math flags to \p O.
+-  void print(raw_ostream &O) const;
+-};
+-
+-inline raw_ostream &operator<<(raw_ostream &O, FastMathFlags FMF) {
+-  FMF.print(O);
+-  return O;
+-}
+-
+ /// Utility class for floating point operations which can have
+ /// information about relaxed accuracy requirements attached to them.
+ class FPMathOperator : public Operator {
+diff --git a/llvm/lib/Analysis/InstructionSimplify.cpp b/llvm/lib/Analysis/InstructionSimplify.cpp
+index a2d2b2ae2702..19db5e37cddd 100644
+--- a/llvm/lib/Analysis/InstructionSimplify.cpp
++++ b/llvm/lib/Analysis/InstructionSimplify.cpp
+@@ -5050,11 +5050,6 @@ static Constant *simplifyFPOp(ArrayRef<Value *> Ops, FastMathFlags FMF,
+   return nullptr;
+ }
+ 
+-// TODO: Move this out to a header file:
+-static inline bool canIgnoreSNaN(fp::ExceptionBehavior EB, FastMathFlags FMF) {
+-  return (EB == fp::ebIgnore || FMF.noNaNs());
+-}
+-
+ /// Given operands for an FAdd, see if we can fold the result.  If not, this
+ /// returns null.
+ static Value *
+-- 
+2.17.1
+

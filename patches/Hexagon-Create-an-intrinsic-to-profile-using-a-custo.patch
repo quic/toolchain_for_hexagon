@@ -1,0 +1,161 @@
+From 65a2f6ad9c652536d7c394cad2ac83d306e6b587 Mon Sep 17 00:00:00 2001
+From: Jyotsna Verma <jverma@quicinc.com>
+Date: Thu, 24 Mar 2022 16:38:27 -0500
+Subject: [PATCH] [Hexagon] Create an intrinsic to profile using a custom
+ handler
+
+The intrinsic is lowered into a hexagon pseudo instruction which
+after register allocation is expanded into A2_tfrsi and J2_call.
+---
+ llvm/include/llvm/IR/IntrinsicsHexagon.td     | 11 ++++++
+ llvm/lib/Target/Hexagon/HexagonInstrInfo.cpp  | 37 +++++++++++++++++++
+ llvm/lib/Target/Hexagon/HexagonPatterns.td    |  6 +++
+ llvm/lib/Target/Hexagon/HexagonPseudo.td      | 22 +++++++++++
+ llvm/test/CodeGen/Hexagon/instrprof-custom.ll | 20 ++++++++++
+ 5 files changed, 96 insertions(+)
+ create mode 100644 llvm/test/CodeGen/Hexagon/instrprof-custom.ll
+
+diff --git a/llvm/include/llvm/IR/IntrinsicsHexagon.td b/llvm/include/llvm/IR/IntrinsicsHexagon.td
+index 212262c28706..e15d974676dc 100644
+--- a/llvm/include/llvm/IR/IntrinsicsHexagon.td
++++ b/llvm/include/llvm/IR/IntrinsicsHexagon.td
+@@ -404,4 +404,15 @@ def int_hexagon_V6_vmaskedstorenq_128B: Hexagon_custom_vms_Intrinsic_128B;
+ def int_hexagon_V6_vmaskedstorentq_128B: Hexagon_custom_vms_Intrinsic_128B;
+ def int_hexagon_V6_vmaskedstorentnq_128B: Hexagon_custom_vms_Intrinsic_128B;
+ 
++
++// Intrinsic for instrumentation based profiling using a custom handler. The
++// name of the handler is passed as the first operand to the intrinsic. The
++// handler can take only one int32 input which is passed as the second
++// operand to the intrinsic.
++def int_hexagon_instrprof_custom
++    : Hexagon_NonGCC_Intrinsic<[],
++                               [llvm_ptr_ty, llvm_i32_ty],
++                               [IntrInaccessibleMemOnly]>;
++
++
+ include "llvm/IR/IntrinsicsHexagonDep.td"
+diff --git a/llvm/lib/Target/Hexagon/HexagonInstrInfo.cpp b/llvm/lib/Target/Hexagon/HexagonInstrInfo.cpp
+index b40b63d011f3..c5fe88edf976 100644
+--- a/llvm/lib/Target/Hexagon/HexagonInstrInfo.cpp
++++ b/llvm/lib/Target/Hexagon/HexagonInstrInfo.cpp
+@@ -1072,6 +1072,43 @@ bool HexagonInstrInfo::expandPostRAPseudo(MachineInstr &MI) const {
+   };
+ 
+   switch (Opc) {
++    case Hexagon::PS_call_instrprof_custom: {
++      auto Op0 = MI.getOperand(0);
++      assert(Op0.isGlobal() &&
++             "First operand must be a global containing handler name.");
++      const GlobalValue *NameVar = Op0.getGlobal();
++      const GlobalVariable *GV = dyn_cast<GlobalVariable>(NameVar);
++      auto *Arr = cast<ConstantDataArray>(GV->getInitializer());
++      StringRef NameStr = Arr->isCString() ? Arr->getAsCString() : Arr->getAsString();
++
++      MachineOperand &Op1 = MI.getOperand(1);
++      // Set R0 with the imm value to be passed to the custom profiling handler.
++      BuildMI(MBB, MI, DL, get(Hexagon::A2_tfrsi), Hexagon::R0)
++        .addImm(Op1.getImm());
++      // The call to the custom handler is being treated as a special one as the
++      // callee is responsible for saving and restoring all the registers
++      // (including caller saved registers) it needs to modify. This is
++      // done to reduce the impact of instrumentation on the code being
++      // instrumented/profiled.
++      // NOTE: R14, R15 and R28 are reserved for PLT handling. These registers
++      // are in the Def list of the Hexagon::PS_call_instrprof_custom and
++      // therefore will be handled appropriately duing register allocation.
++
++      // TODO: It may be a good idea to add a separate pseudo instruction for
++      // static relocation which doesn't need to reserve r14, r15 and r28.
++
++      auto MIB = BuildMI(MBB, MI, DL, get(Hexagon::J2_call))
++                 .addUse(Hexagon::R0, RegState::Implicit|RegState::InternalRead)
++                 .addDef(Hexagon::R29, RegState::ImplicitDefine)
++                 .addDef(Hexagon::R30, RegState::ImplicitDefine)
++                 .addDef(Hexagon::R14, RegState::ImplicitDefine)
++                 .addDef(Hexagon::R15, RegState::ImplicitDefine)
++                 .addDef(Hexagon::R28, RegState::ImplicitDefine);
++      const char *cstr = MF.createExternalSymbolName(NameStr);
++      MIB.addExternalSymbol(cstr);
++      MBB.erase(MI);
++      return true;
++    }
+     case TargetOpcode::COPY: {
+       MachineOperand &MD = MI.getOperand(0);
+       MachineOperand &MS = MI.getOperand(1);
+diff --git a/llvm/lib/Target/Hexagon/HexagonPatterns.td b/llvm/lib/Target/Hexagon/HexagonPatterns.td
+index 3abbd896c519..80fbf33d83b7 100644
+--- a/llvm/lib/Target/Hexagon/HexagonPatterns.td
++++ b/llvm/lib/Target/Hexagon/HexagonPatterns.td
+@@ -3273,3 +3273,9 @@ let AddedComplexity = 100 in {
+   def: Pat<(i1 (seteq (int_hexagon_S4_stored_locked I32:$Rs, I64:$Rt), 0)),
+            (C2_not (S4_stored_locked I32:$Rs, I64:$Rt))>;
+ }
++
++def: Pat<(int_hexagon_instrprof_custom (HexagonAtPcrel tglobaladdr:$addr), u32_0ImmPred:$I),
++         (PS_call_instrprof_custom tglobaladdr:$addr, imm:$I)>;
++
++def: Pat<(int_hexagon_instrprof_custom (HexagonCONST32 tglobaladdr:$addr), u32_0ImmPred:$I),
++         (PS_call_instrprof_custom tglobaladdr:$addr, imm:$I)>;
+diff --git a/llvm/lib/Target/Hexagon/HexagonPseudo.td b/llvm/lib/Target/Hexagon/HexagonPseudo.td
+index afd63d6d4aa7..7c45568f7734 100644
+--- a/llvm/lib/Target/Hexagon/HexagonPseudo.td
++++ b/llvm/lib/Target/Hexagon/HexagonPseudo.td
+@@ -182,6 +182,28 @@ let isCodeGenOnly = 1, isCall = 1, hasSideEffects = 1,
+     Defs = [PC, R31, R6, R7, P0] in
+ def PS_call_stk : T_Call<"">;
+ 
++// This pseudo instruction is used to replace int_hexagon_instrprof_custom intrinsic
++// with a call to custom handler passed as the first argument to the intrinsic.
++
++// Pleae Note:
++// 1) The call to the custom handler is being treated as a special one as the
++//    callee is responsible for saving and restoring all the registers it needs
++//    to modify. This includes caller saved registers as well as r0-r5 argument
++//    registers. This is done to reduce the impact of instrumentation on the
++//    code being instrumented/profiled.
++// 2) R14, R15 and R28 are reserved for PLT handling and therefore are
++//    part of the def list.
++// 3) R0 is used to pass the unique id associated with an instrumentation site
++//    to the handler.
++// 4) All the other registers (R29, R30, R31, PC) get modified by the call
++//    instruction.
++
++// TODO: It may be a good idea to add a separate pseudo instruction for
++// static relocation which doesn't need to reserve r14, r15 and r28.
++
++let hasSideEffects = 1, isCall = 1, Defs = [R0, R14, R15, R28, R29, R30, R31, PC] in
++def PS_call_instrprof_custom :  Pseudo<(outs), (ins s32_0Imm:$dst, u32_0Imm:$Ii), "">;
++
+ // Call, no return.
+ let isCall = 1, hasSideEffects = 1, cofMax1 = 1, isCodeGenOnly = 1 in
+ def PS_callr_nr: InstHexagon<(outs), (ins IntRegs:$Rs),
+diff --git a/llvm/test/CodeGen/Hexagon/instrprof-custom.ll b/llvm/test/CodeGen/Hexagon/instrprof-custom.ll
+new file mode 100644
+index 000000000000..e3c729842d54
+--- /dev/null
++++ b/llvm/test/CodeGen/Hexagon/instrprof-custom.ll
+@@ -0,0 +1,20 @@
++; RUN: llc -march=hexagon -relocation-model=pic < %s | FileCheck %s
++; RUN: llc -march=hexagon < %s | FileCheck %s
++
++; CHECK-LABEL: test1:
++; CHECK: {{call my_instrprof_handler|r0 = #999}}
++; CHECK-NEXT: {{call my_instrprof_handler|r0 = #999}}
++
++@handler_name = internal constant [21 x i8] c"my_instrprof_handler\00"
++
++define dllexport void @test1() local_unnamed_addr #0 {
++entry:
++  tail call void @llvm.hexagon.instrprof.custom(i8* getelementptr inbounds ([21 x i8], [21 x i8]* @handler_name, i32 0, i32 0), i32 999)
++  ret void
++}
++
++; Function Attrs: inaccessiblememonly nofree nosync nounwind willreturn
++declare void @llvm.hexagon.instrprof.custom(i8*, i32) #1
++
++attributes #0 = { "target-features"="+hvxv68,+hvx-length128b,+hvx-qfloat,-hvx-ieee-fp,+hmxv68" }
++attributes #1 = { inaccessiblememonly nofree nosync nounwind willreturn }
+-- 
+2.17.1
+
