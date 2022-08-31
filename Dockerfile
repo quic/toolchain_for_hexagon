@@ -47,7 +47,7 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt build-dep -yy --arch-only qemu clang python
 
-ENV VER 14.0.0
+ENV VER 14.0.6
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV ARTIFACT_BASE /usr/local/hexagon-artifacts
@@ -73,7 +73,7 @@ RUN cd /root/hexagon-toolchain && ./get-src-tarballs.sh ${PWD} ${TOOLCHAIN_INSTA
 
 ARG ARTIFACT_TAG=${VER}
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
-RUN cd /root/hexagon-toolchain && ./build-toolchain.sh 14.0.0
+RUN cd /root/hexagon-toolchain && ./build-toolchain.sh 14.0.6
 
 ARG TEST_TOOLCHAIN=1
 
