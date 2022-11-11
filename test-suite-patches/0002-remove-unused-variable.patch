@@ -1,0 +1,24 @@
+--- qemu/tests/tcg/multiarch/linux/linux-test.c.old	2022-11-07 15:33:05.862410841 +0530
++++ qemu/tests/tcg/multiarch/linux/linux-test.c	2022-11-07 15:33:38.982404440 +0530
+@@ -332,12 +332,11 @@
+     fd_set rfds, wfds;
+     int fds[2], fd_max, ret;
+     uint8_t ch;
+-    int wcount, rcount;
++    int rcount;
+ 
+     chk_error(pipe(fds));
+     chk_error(fcntl(fds[0], F_SETFL, O_NONBLOCK));
+     chk_error(fcntl(fds[1], F_SETFL, O_NONBLOCK));
+-    wcount = 0;
+     rcount = 0;
+     for(;;) {
+         FD_ZERO(&rfds);
+@@ -360,7 +359,6 @@
+             if (FD_ISSET(fds[1], &wfds)) {
+                 ch = 'a';
+                 chk_error(write(fds[1], &ch, 1));
+-                wcount++;
+             }
+         }
+     }

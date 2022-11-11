@@ -47,7 +47,7 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt build-dep -yy --arch-only qemu clang python
 
-ENV VER 15.0.0
+ENV VER 15.0.3
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV ARTIFACT_BASE /usr/local/hexagon-artifacts
@@ -68,12 +68,13 @@ ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.14.tar
 #ADD get-host-clang-cmake-python.sh /root/hexagon-toolchain/get-host-clang-cmake-python.sh
 #RUN cd /root/hexagon-toolchain && ./get-host-clang-cmake-python.sh
 
+ADD test-suite-patches /root/hexagon-toolchain/test-suite-patches
 ADD get-src-tarballs.sh /root/hexagon-toolchain/get-src-tarballs.sh
 RUN cd /root/hexagon-toolchain && ./get-src-tarballs.sh ${PWD} ${TOOLCHAIN_INSTALL}/manifest
 
 ARG ARTIFACT_TAG=${VER}
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
-RUN cd /root/hexagon-toolchain && ./build-toolchain.sh 15.0.0
+RUN cd /root/hexagon-toolchain && ./build-toolchain.sh ${ARTIFACT_TAG}
 
 ARG TEST_TOOLCHAIN=1
 
