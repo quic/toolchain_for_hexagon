@@ -109,7 +109,7 @@ build_musl_headers() {
 	CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
 		CROSS_COMPILE=hexagon-unknown-linux-musl \
 	       	LIBCC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-musl/lib/libclang_rt.builtins-hexagon.a \
-		CROSS_CFLAGS="-G0 -O0 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl" \
+		CROSS_CFLAGS="-G0 -O2 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
 	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make CROSS_COMPILE= install-headers
 
@@ -267,7 +267,7 @@ fi
 ccache --show-stats
 
 
-MUSL_CFLAGS="-G0 -O0 -mv65 -fno-builtin -mlong-calls --target=hexagon-unknown-linux-musl"
+MUSL_CFLAGS="-G0 -O2 -mv65 -fno-builtin -mlong-calls --target=hexagon-unknown-linux-musl"
 
 # Workaround, 'C()' macro results in switch over bool:
 MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-switch-bool"
