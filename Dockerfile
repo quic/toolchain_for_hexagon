@@ -47,7 +47,7 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt build-dep -yy --arch-only qemu clang python
 
-ENV VER 15.0.6
+ENV VER 16.0.0-rc0
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV ARTIFACT_BASE /usr/local/hexagon-artifacts
@@ -56,7 +56,9 @@ ENV MAKE_TARBALLS 1
 #ENV CMAKE_VER 3.16.6
 #ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-Linux-x86_64.tar.gz
 
-ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
+# b0daacf58f417634f7c7c9496589d723592a8f5a, from Jan 15 2023, is the last
+# commit before the v17.0.0 branch off.
+ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/b0daacf58f417634f7c7c9496589d723592a8f5a.tar.gz
 #ARG QEMU_REPO=https://github.com/quic/qemu
 #ARG QEMU_SHA=master
 ARG QEMU_SRC_URL=https://download.qemu.org/qemu-6.2.0.tar.xz
