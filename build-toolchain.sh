@@ -209,7 +209,7 @@ build_qemu() {
 	CC=$(which gcc) \
 	../qemu/configure --disable-fdt --disable-capstone --disable-guest-agent \
 	                  --disable-containers \
-	                  --python=$(which python3.6) \
+	                  --python=$(which python3.8) \
 		--target-list=hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu \
 
 #	--cc=clang \

@@ -31,6 +31,7 @@ RUN apt update && \
         wget \
 	build-essential \
 	python3.6 \
+	python3.8 \
 	curl \
 	xz-utils \
 	ca-certificates \
