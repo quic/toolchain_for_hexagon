@@ -10,8 +10,6 @@ set -x
 
 build_llvm_clang() {
 	cd ${BASE}
-	mkdir -p obj_llvm
-	cd obj_llvm
 
 	CC=clang CXX=clang++ cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
@@ -22,19 +20,11 @@ build_llvm_clang() {
 		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
 		-DLLVM_ENABLE_PIC:BOOL=OFF \
-		-DLLVM_TARGETS_TO_BUILD:STRING="Hexagon" \
-		-DLLVM_PYTHON_EXECUTABLE:STRING=$(which python3.6) \
-		-DLLVM_DEFAULT_TARGET_TRIPLE:STRING="hexagon-unknown-musl-linux" \
-		-DCLANG_DEFAULT_CXX_STDLIB:STRING="libc++" \
-		-DCLANG_DEFAULT_OBJCOPY:STRING="llvm-objcopy" \
-		-DCLANG_DEFAULT_LINKER:STRING="lld" \
-		-DDEFAULT_SYSROOT:STRING="../target/hexagon-unknown-linux-musl/" \
-		-DLLVM_ENABLE_PROJECTS:STRING="clang;lld" \
-		../llvm-project/llvm
- 	ninja all install
+		-C ./hexagon-unknown-linux-musl-clang.cmake \
+		-B ./obj_llvm \
+		-S ./llvm-project/llvm
+	cmake --build ./obj_llvm -- -v all install
 	cd ${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
-	ln -sf clang hexagon-unknown-linux-musl-clang
-	ln -sf clang++ hexagon-unknown-linux-musl-clang++
 	ln -sf llvm-ar hexagon-unknown-linux-musl-ar
 	ln -sf llvm-objdump hexagon-unknown-linux-musl-objdump
 	ln -sf llvm-objcopy hexagon-unknown-linux-musl-objcopy
@@ -42,32 +32,31 @@ build_llvm_clang() {
 	ln -sf llvm-ranlib hexagon-unknown-linux-musl-ranlib
 }
 
-build_clang_rt() {
+build_clang_rt_builtins() {
 	cd ${BASE}
-	mkdir -p obj_clang_rt
-	cd obj_clang_rt
-	cmake -G Ninja \
+
+	PATH=${TOOLCHAIN_BIN}:${PATH} \
+		cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DLLVM_CONFIG_PATH:PATH=${TOOLCHAIN_BIN}/llvm-config \
 		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=OFF \
 		-DCMAKE_ASM_FLAGS:STRING="-G0 -mlong-calls -fno-pic" \
-		-DCMAKE_SYSTEM_NAME:STRING=Linux \
-		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DCMAKE_ASM_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
 		-DCOMPILER_RT_EMULATOR:STRING="${TOOLCHAIN_BIN}/qemu_wrapper.sh" \
 		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
-		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
-		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
 		-DCOMPILER_RT_BUILD_BUILTINS:BOOL=ON \
 		-DCOMPILER_RT_BUILTINS_ENABLE_PIC:BOOL=OFF \
-		-DCMAKE_SIZEOF_VOID_P=4 \
 		-DCOMPILER_RT_OS_DIR= \
 		-DCAN_TARGET_hexagon=1 \
 		-DCAN_TARGET_x86_64=0 \
 		-DCOMPILER_RT_SUPPORTED_ARCH=hexagon \
-		../llvm-project/compiler-rt
-	ninja install-builtins
+		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
+		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
+		-C ./hexagon-linux-cross.cmake \
+		-B ./obj_clang_rt \
+		-S ./llvm-project/compiler-rt
+
+	cmake --build ./obj_clang_rt -- -v install-builtins
 }
 
 
@@ -108,10 +97,10 @@ build_musl_headers() {
 
 	CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
 		CROSS_COMPILE=hexagon-unknown-linux-musl \
-	       	LIBCC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-musl/lib/libclang_rt.builtins-hexagon.a \
-		CROSS_CFLAGS="-G0 -O0 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl" \
+		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
+		CROSS_CFLAGS="-G0 -O0 -mv65 -fno-builtin --target=hexagon-unknown-linux-musl" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
-	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make CROSS_COMPILE= install-headers
+	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make install-headers
 
 	cd ${HEX_SYSROOT}/..
 	ln -sf hexagon-unknown-linux-musl hexagon
@@ -126,11 +115,11 @@ build_musl() {
 		AR=llvm-ar \
 		RANLIB=llvm-ranlib \
 		STRIP=llvm-strip \
-	       	CC=clang \
-	       	LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
+		CC=clang \
+		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
 		CFLAGS="${MUSL_CFLAGS}" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
-	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make -j CROSS_COMPILE= install
+	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make -j install
 	cd ${HEX_TOOLS_TARGET_BASE}/lib
 	ln -sf libc.so ld-musl-hexagon.so
 	ln -sf ld-musl-hexagon.so ld-musl-hexagon.so.1
@@ -142,63 +131,44 @@ build_musl() {
 
 build_libs() {
 	cd ${BASE}
-	mkdir -p obj_libs
-	cd obj_libs
-	cmake -G Ninja \
+
+	PATH=${TOOLCHAIN_BIN}:${PATH} \
+		cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DLLVM_CONFIG_PATH:PATH=${TOOLCHAIN_BIN}/llvm-config \
-		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=OFF \
-		-DCMAKE_SYSTEM_NAME:STRING=Linux \
-		-DCMAKE_EXE_LINKER_FLAGS:STRING="-lclang_rt.builtins-hexagon -nostdlib" \
-		-DCMAKE_SHARED_LINKER_FLAGS:STRING="-lclang_rt.builtins-hexagon -nostdlib" \
-		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DCMAKE_CXX_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang++" \
-		-DCMAKE_ASM_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DLIBCXX_INCLUDE_BENCHMARKS:BOOL=OFF \
-		-DLLVM_ENABLE_RUNTIMES:STRING="libcxx;libcxxabi;libunwind;compiler-rt" \
 		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
-		-DLIBCXX_HAS_MUSL_LIBC:BOOL=ON \
-		-DLIBCXX_INCLUDE_TESTS:BOOL=OFF \
-		-DLIBCXX_CXX_ABI=libcxxabi \
-		-DLIBCXXABI_USE_LLVM_UNWINDER=ON \
-		-DLIBCXXABI_HAS_CXA_THREAD_ATEXIT_IMPL=OFF \
-		-DLIBCXXABI_ENABLE_SHARED:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
-		../llvm-project/runtimes
-	ninja -v install-unwind
-	ninja -v install-cxxabi
-	ninja -v install-cxx
-	ninja -v install-compiler-rt
+		-C ./hexagon-linux-cross.cmake \
+		-C ./hexagon-linux-runtimes.cmake \
+		-B ./obj_libs \
+		-S ./llvm-project/runtimes
+
+	PATH=${TOOLCHAIN_BIN}:${PATH} \
+	cmake --build ./obj_libs -- -v \
+		install
 }
 
 build_sanitizers() {
 	cd ${BASE}
-	mkdir -p obj_san
-	cd obj_san
-	cmake -G Ninja \
+	set -x
+	PATH=${TOOLCHAIN_BIN}:${PATH} \
+		cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DLLVM_CONFIG_PATH:PATH=${TOOLCHAIN_BIN}/llvm-config \
 		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=OFF \
-		-DCMAKE_ASM_FLAGS:STRING="-G0 -mlong-calls" \
-		-DCMAKE_SYSTEM_NAME:STRING=Linux \
-		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DCMAKE_CXX_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang++" \
-		-DCMAKE_ASM_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DCOMPILER_RT_EMULATOR:STRING="${TOOLCHAIN_BIN}/qemu_wrapper.sh" \
-		-DCOMPILER_RT_CAN_EXECUTE_TESTS:BOOL=ON \
 		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
+		-DCOMPILER_RT_BUILD_BUILTINS:BOOL=OFF \
+		-DCOMPILER_RT_BUILD_SANITIZERS:BOOL=ON \
+		-DCAN_TARGET_hexagon=1 \
 		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
-		-DCOMPILER_RT_BUILD_BUILTINS:BOOL=OFF \
-		-DCMAKE_SIZEOF_VOID_P=4 \
-		-DCOMPILER_RT_OS_DIR= \
-		-DCAN_TARGET_hexagon=1 \
-		-DCAN_TARGET_x86_64=0 \
 		-DCOMPILER_RT_SUPPORTED_ARCH=hexagon \
-		../llvm-project/compiler-rt
-	ninja install-compiler-rt
+		-C ./hexagon-linux-cross.cmake \
+		-B ./obj_san \
+		-S ./llvm-project/compiler-rt
+	cmake --build ./obj_san -- -v install-compiler-rt
 }
 
 
@@ -286,7 +256,7 @@ ccache --show-stats
 config_kernel
 build_kernel_headers
 build_musl_headers
-build_clang_rt
+build_clang_rt_builtins
 build_musl
 
 build_libs
