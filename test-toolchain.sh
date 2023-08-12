@@ -21,10 +21,9 @@ test_llvm() {
 		OPT_CMAKE_CMDLINE="-C ${OPT_CMAKE}"
 	fi
 	cd ${BASE}
-	mkdir -p obj_test-suite_${OPT_FLAVOR}
-	cd obj_test-suite_${OPT_FLAVOR}
 
-	cmake -G Ninja \
+	PATH=${TOOLCHAIN_BIN}:${PATH} \
+		cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		${OPT_CMAKE_CMDLINE} \
 		-DTEST_SUITE_CXX_ABI:STRING=libc++abi \
@@ -33,15 +32,15 @@ test_llvm() {
 		-DTEST_SUITE_RUN_BENCHMARKS:BOOL=ON \
 		-DTEST_SUITE_LIT:FILEPATH="${BASE}/obj_llvm/bin/llvm-lit" \
 		-DBENCHMARK_USE_LIBCXX:BOOL=ON \
-		-DCMAKE_SYSTEM_NAME:STRING=Linux \
-		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DCMAKE_CXX_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang++" \
 		-DSMALL_PROBLEM_SIZE:BOOL=ON \
-		../llvm-test-suite
-	ninja -v -k 0
-#	ninja check
+		-C ./hexagon-linux-cross.cmake \
+		-B ./obj_test-suite_${OPT_FLAVOR} \
+		-S ./llvm-test-suite
+
+	cmake --build ./obj_test-suite_${OPT_FLAVOR} -- -v -k 0
+#	cmake --build ./obj_test-suite_${OPT_FLAVOR} -- -v check
 	python3 ${BASE}/obj_llvm/bin/llvm-lit -v --max-tests=${LLVM_TS_LIMIT} \
-		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} .
+		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} ./obj_test-suite_${OPT_FLAVOR}
 	llvm_result=${?}
 }
 
