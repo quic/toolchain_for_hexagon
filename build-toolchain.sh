@@ -8,6 +8,46 @@ STAMP=${1-$(date +"%Y_%b_%d")}
 set -euo pipefail
 set -x
 
+build_llvm_clang_cross() {
+	triple=${1}
+	cd ${BASE}
+
+	EXTRA=""
+	if [[ "${triple}" =~ "windows" ]]; then
+		EXTRA="-C windows-gnu-target.cmake"
+	fi
+
+	CC="zig cc --target=${triple}" \
+	ASM="zig cc --target=${triple}" \
+	CXX="zig c++ --target=${triple}" \
+		cmake -G Ninja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX:PATH=${TOOLCHAIN_INSTALL}/${triple}/ \
+		-DLLVM_CCACHE_BUILD:BOOL=OFF \
+		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
+		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
+		-DLLVM_HOST_TRIPLE=${triple} \
+		-DLLVM_TOOL_DSYMUTIL_BUILD:BOOL=OFF \
+		-DLLVM_INCLUDE_TESTS:BOOL=OFF \
+		-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF \
+		-DLLVM_ENABLE_PIC:BOOL=OFF \
+		-DLLVM_NATIVE_TOOL_DIR=${PWD}/obj_llvm/bin \
+		-DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON \
+		-DCMAKE_CROSSCOMPILING:BOOL=ON \
+		${EXTRA} \
+		-C ./hexagon-unknown-linux-musl-clang.cmake \
+		-DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
+		-B ./obj_llvm_${triple} \
+		-S ./llvm-project/llvm
+	cmake --build ./obj_llvm_${triple} -- -v all install
+	DEST_BIN=${TOOLCHAIN_INSTALL}/${triple}/bin
+	ln -sf --relative ${DEST_BIN}/llvm-ar ${DEST_BIN}/hexagon-unknown-linux-musl-ar
+	ln -sf --relative ${DEST_BIN}/llvm-objdump ${DEST_BIN}/hexagon-unknown-linux-musl-objdump
+	ln -sf --relative ${DEST_BIN}/llvm-objcopy ${DEST_BIN}/hexagon-unknown-linux-musl-objcopy
+	ln -sf --relative ${DEST_BIN}/llvm-readelf ${DEST_BIN}/hexagon-unknown-linux-musl-readelf
+	ln -sf --relative ${DEST_BIN}/llvm-ranlib ${DEST_BIN}/hexagon-unknown-linux-musl-ranlib
+}
+
 build_llvm_clang() {
 	cd ${BASE}
 
@@ -24,12 +64,12 @@ build_llvm_clang() {
 		-B ./obj_llvm \
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm -- -v all install
-	cd ${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
-	ln -sf llvm-ar hexagon-unknown-linux-musl-ar
-	ln -sf llvm-objdump hexagon-unknown-linux-musl-objdump
-	ln -sf llvm-objcopy hexagon-unknown-linux-musl-objcopy
-	ln -sf llvm-readelf hexagon-unknown-linux-musl-readelf
-	ln -sf llvm-ranlib hexagon-unknown-linux-musl-ranlib
+	DEST_BIN=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
+	ln -sf --relative ${DEST_BIN}/llvm-ar ${DEST_BIN}/hexagon-unknown-linux-musl-ar
+	ln -sf --relative ${DEST_BIN}/llvm-objdump ${DEST_BIN}/hexagon-unknown-linux-musl-objdump
+	ln -sf --relative ${DEST_BIN}/llvm-objcopy ${DEST_BIN}/hexagon-unknown-linux-musl-objcopy
+	ln -sf --relative ${DEST_BIN}/llvm-readelf ${DEST_BIN}/hexagon-unknown-linux-musl-readelf
+	ln -sf --relative ${DEST_BIN}/llvm-ranlib ${DEST_BIN}/hexagon-unknown-linux-musl-ranlib
 }
 
 build_clang_rt_builtins() {
@@ -251,6 +291,13 @@ cmake --version
 python3.8 --version
 
 build_llvm_clang
+
+CROSS_TRIPLES="aarch64-windows-gnu x86_64-windows-gnu aarch64-linux-gnu aarch64-macos"
+CROSS_TRIPLES=""
+for t in ${CROSS_TRIPLES}
+do
+	build_llvm_clang_cross ${t}
+done
 ccache --show-stats
 config_kernel
 build_kernel_headers
@@ -261,12 +308,23 @@ build_musl
 build_libs
 build_sanitizers
 
+
+for t in ${CROSS_TRIPLES}
+do
+	cp -ra ${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target ${TOOLCHAIN_INSTALL}/${t}
+done
 build_qemu
 
 cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
 #   XZ_OPT="-e9T0" tar cJf ${RESULTS_DIR}/${REL_NAME}.tar.xz -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}
-    tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME} | xz -e9T0 > ${RESULTS_DIR}/${REL_NAME}.tar.xz
+    tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/x86_64-linux-gnu | xz -e9T0 > ${RESULTS_DIR}/${REL_NAME}.tar.xz
+	for t in ${CROSS_TRIPLES}
+	do
+		if [[ -d ${TOOLCHAIN_INSTALL_REL}/${t} ]]; then
+			tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/${t} | xz -e9T0 > ${RESULTS_DIR}/${REL_NAME}_${t}.tar.xz
+		fi
+	done
     cd ${RESULTS_DIR}
-    sha256sum ${REL_NAME}.tar.xz | tee ${REL_NAME}.tar.xz.sha256
+    sha256sum *.tar.xz | tee SHA256SUMS
 fi
