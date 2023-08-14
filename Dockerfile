@@ -2,6 +2,7 @@
 FROM ubuntu:18.04
 
 ENV HOST_CLANG_VER 12
+ENV PATH="/opt/zig-linux-x86_64-0.11.0:$PATH"
 
 # Install common build utilities
 RUN apt update && \
@@ -11,6 +12,8 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
         add-apt-repository ppa:deadsnakes/ppa && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
+	wget --quiet https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz && \
+	tar xf ./zig-linux-x86_64-0.11.0.tar.xz --directory /opt && \
 	wget https://apt.llvm.org/llvm.sh && \
 	chmod +x ./llvm.sh && \
 	bash -x ./llvm.sh  ${HOST_CLANG_VER} && \
