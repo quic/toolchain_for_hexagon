@@ -12,3 +12,6 @@ set(LLVM_ENABLE_PROJECTS "clang;lld" CACHE STRING "")
 set(CLANG_LINKS_TO_CREATE hexagon-unknown-linux-musl-clang++ hexagon-unknown-linux-musl-clang CACHE STRING "")
 set(LLVM_INCLUDE_TESTS OFF CACHE BOOL "")
 set(LLVM_INCLUDE_DOCS OFF CACHE BOOL "")
+# Enabling toolchain-only causes problems when doing some of the
+# subsequent builds, will need to investigate:
+set(LLVM_INSTALL_TOOLCHAIN_ONLY OFF CACHE BOOL "")

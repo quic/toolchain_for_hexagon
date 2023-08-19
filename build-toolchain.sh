@@ -39,24 +39,20 @@ build_clang_rt_builtins() {
 		cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DLLVM_CMAKE_DIR:PATH=${TOOLCHAIN_LIB} \
-		-DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR:BOOL=OFF \
-		-DCMAKE_ASM_FLAGS:STRING="-G0 -mlong-calls -fno-pic" \
 		-DCOMPILER_RT_EMULATOR:STRING="${TOOLCHAIN_BIN}/qemu_wrapper.sh" \
 		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
-		-DCOMPILER_RT_BUILD_BUILTINS:BOOL=ON \
-		-DCOMPILER_RT_BUILTINS_ENABLE_PIC:BOOL=OFF \
 		-DCOMPILER_RT_OS_DIR= \
 		-DCAN_TARGET_hexagon=1 \
 		-DCAN_TARGET_x86_64=0 \
-		-DCOMPILER_RT_SUPPORTED_ARCH=hexagon \
 		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
+		-C ./hexagon-linux-builtins.cmake \
 		-C ./hexagon-linux-cross.cmake \
 		-B ./obj_clang_rt \
 		-S ./llvm-project/compiler-rt
 
-	cmake --build ./obj_clang_rt -- -v install-builtins
+	cmake --build ./obj_clang_rt -- -v install
 }
 
 
