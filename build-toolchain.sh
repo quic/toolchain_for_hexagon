@@ -251,7 +251,7 @@ which clang
 clang --version
 ninja --version
 cmake --version
-python3.6 --version
+python3.8 --version
 
 build_llvm_clang
 ccache --show-stats
