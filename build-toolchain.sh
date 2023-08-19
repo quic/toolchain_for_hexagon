@@ -161,6 +161,7 @@ build_sanitizers() {
 		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
 		-DCOMPILER_RT_SUPPORTED_ARCH=hexagon \
+		-DLLVM_TARGET_TRIPLE=hexagon-unknown-linux-musl \
 		-C ./hexagon-linux-cross.cmake \
 		-B ./obj_san \
 		-S ./llvm-project/compiler-rt
