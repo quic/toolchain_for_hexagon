@@ -63,7 +63,7 @@ ENV MAKE_TARBALLS 1
 ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
 #ARG QEMU_REPO=https://github.com/quic/qemu
 #ARG QEMU_SHA=master
-ARG QEMU_SRC_URL=https://download.qemu.org/qemu-8.0.3.tar.xz
+ARG QEMU_SRC_URL=https://download.qemu.org/qemu-8.1.0.tar.xz
 
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/7243e0d3a9d7e0f08d21fc194a05749e0bb26725.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.14.tar.xz
