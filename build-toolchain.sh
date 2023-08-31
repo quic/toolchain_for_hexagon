@@ -306,7 +306,7 @@ build_clang_rt_builtins
 build_musl
 
 build_libs
-build_sanitizers
+#build_sanitizers
 
 
 for t in ${CROSS_TRIPLES}
