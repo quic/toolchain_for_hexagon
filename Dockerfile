@@ -1,5 +1,5 @@
 
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ENV HOST_CLANG_VER 12
 ENV PATH="/opt/zig-linux-x86_64-0.11.0:$PATH"
@@ -50,7 +50,7 @@ RUN cat /etc/apt/sources.list | sed "s/^deb\ /deb-src /" >> /etc/apt/sources.lis
 
 RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
-    apt build-dep -yy --arch-only qemu clang python
+    apt build-dep -yy --arch-only qemu clang python3
 
 ENV VER 17.0.0-rc3
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
