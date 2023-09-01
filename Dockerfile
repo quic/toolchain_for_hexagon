@@ -35,6 +35,7 @@ RUN apt update && \
 	build-essential \
 	python3.6 \
 	python3.8 \
+	python3.8-venv \
 	curl \
 	xz-utils \
 	ca-certificates \
