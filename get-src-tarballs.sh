@@ -17,12 +17,10 @@ get_src_tarballs() {
 	echo ${LLVM_SRC_URL} > ${MANIFEST_DIR}/llvm-project.txt
 	cd -
 
-	wget --quiet ${QEMU_SRC_URL} -O qemu.tar.xz
-	mkdir qemu
+	git clone --branch ${QEMU_REF} ${QEMU_REPO}
 	cd qemu
-	tar xf ../qemu.tar.xz --strip-components=1
-	rm ../qemu.tar.xz
-	echo ${QEMU_SRC_URL} > ${MANIFEST_DIR}/qemu.txt
+	git remote -v > ${MANIFEST_DIR}/qemu.txt
+	git log -3 HEAD >> ${MANIFEST_DIR}/qemu.txt
 	cd -
 
 	wget --quiet ${MUSL_SRC_URL} -O musl.tar.xz

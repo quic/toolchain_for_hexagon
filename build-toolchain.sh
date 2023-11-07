@@ -226,7 +226,7 @@ build_qemu() {
 	../qemu/configure --disable-fdt --disable-capstone --disable-guest-agent \
 	                  --disable-containers \
 	                  --python=$(which python3.8) \
-		--target-list=hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu \
+		--target-list=hexagon-softmmu,hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu \
 
 #	--cc=clang \
 #	--cross-prefix=hexagon-unknown-linux-musl-
