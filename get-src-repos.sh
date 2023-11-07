@@ -37,7 +37,7 @@ dump_checkout_info() {
 			proj=$(basename ${d})
 			cd ${d}
 			git remote -v > ${out}/${proj}.txt
-			git log HEAD >> ${out}/${proj}.txt
+			git log -3 HEAD >> ${out}/${proj}.txt
 			cd -
 		fi
 	done
