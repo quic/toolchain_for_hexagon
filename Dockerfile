@@ -33,7 +33,7 @@ RUN apt update && \
         rsync \
         wget \
 	build-essential \
-	python3.6 \
+	python-is-python3 \
 	python3.8 \
 	python3.8-venv \
 	curl \
