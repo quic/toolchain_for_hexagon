@@ -16,6 +16,9 @@ build_llvm_clang_cross() {
 	if [[ "${triple}" =~ "windows" ]]; then
 		EXTRA="-C windows-gnu-target.cmake"
 	fi
+	if [[ "${IN_CONTAINER-0}" -ne 1 ]]; then
+		CMAKE_CCACHE="-DLLVM_CCACHE_BUILD:BOOL=ON"
+	fi
 
 	CC="zig cc --target=${triple}" \
 	ASM="zig cc --target=${triple}" \
@@ -23,7 +26,7 @@ build_llvm_clang_cross() {
 		cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX:PATH=${TOOLCHAIN_INSTALL}/${triple}/ \
-		-DLLVM_CCACHE_BUILD:BOOL=OFF \
+		${CMAKE_CCACHE-} \
 		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
 		-DLLVM_HOST_TRIPLE=${triple} \
@@ -46,11 +49,15 @@ build_llvm_clang_cross() {
 
 build_llvm_clang() {
 	cd ${BASE}
+	if [[ "${IN_CONTAINER-0}" -ne 1 ]]; then
+		CMAKE_CCACHE="-DLLVM_CCACHE_BUILD:BOOL=ON"
+	fi
+
 
 	CC=clang CXX=clang++ cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX:PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/ \
-		-DLLVM_CCACHE_BUILD:BOOL=OFF \
+		${CMAKE_CCACHE-} \
 		-DLLVM_ENABLE_LLD:BOOL=ON \
 		-DLLVM_ENABLE_LIBCXX:BOOL=ON \
 		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
