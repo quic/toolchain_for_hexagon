@@ -20,13 +20,6 @@ git clone -q --branch=hexagon https://github.com/quic/musl &
 git clone -q https://github.com/qemu/qemu &
 
 wait
-wait
-wait
-wait
-wait
-wait
-wait
-wait
 
 dump_checkout_info() {
 	out=${1}
