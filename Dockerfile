@@ -62,9 +62,8 @@ ENV MAKE_TARBALLS 1
 #ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-Linux-x86_64.tar.gz
 
 ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
-#ARG QEMU_REPO=https://github.com/quic/qemu
-#ARG QEMU_SHA=master
-ARG QEMU_SRC_URL=https://download.qemu.org/qemu-8.1.0.tar.xz
+ARG QEMU_REPO=https://github.com/quic/qemu
+ARG QEMU_REF=hexagon-sysemu-6-nov-2023
 
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/7243e0d3a9d7e0f08d21fc194a05749e0bb26725.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.13.tar.xz
