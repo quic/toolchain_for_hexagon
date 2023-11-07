@@ -41,11 +41,7 @@ build_llvm_clang_cross() {
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm_${triple} -- -v all install
 	DEST_BIN=${TOOLCHAIN_INSTALL}/${triple}/bin
-	ln -sf --relative ${DEST_BIN}/llvm-ar ${DEST_BIN}/hexagon-unknown-linux-musl-ar
-	ln -sf --relative ${DEST_BIN}/llvm-objdump ${DEST_BIN}/hexagon-unknown-linux-musl-objdump
-	ln -sf --relative ${DEST_BIN}/llvm-objcopy ${DEST_BIN}/hexagon-unknown-linux-musl-objcopy
-	ln -sf --relative ${DEST_BIN}/llvm-readelf ${DEST_BIN}/hexagon-unknown-linux-musl-readelf
-	ln -sf --relative ${DEST_BIN}/llvm-ranlib ${DEST_BIN}/hexagon-unknown-linux-musl-ranlib
+	add_symlinks ${DEST_BIN}
 }
 
 build_llvm_clang() {
@@ -65,11 +61,23 @@ build_llvm_clang() {
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm -- -v all install
 	DEST_BIN=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
-	ln -sf --relative ${DEST_BIN}/llvm-ar ${DEST_BIN}/hexagon-unknown-linux-musl-ar
-	ln -sf --relative ${DEST_BIN}/llvm-objdump ${DEST_BIN}/hexagon-unknown-linux-musl-objdump
-	ln -sf --relative ${DEST_BIN}/llvm-objcopy ${DEST_BIN}/hexagon-unknown-linux-musl-objcopy
-	ln -sf --relative ${DEST_BIN}/llvm-readelf ${DEST_BIN}/hexagon-unknown-linux-musl-readelf
-	ln -sf --relative ${DEST_BIN}/llvm-ranlib ${DEST_BIN}/hexagon-unknown-linux-musl-ranlib
+	add_symlinks ${DEST_BIN}
+}
+
+add_symlinks() {
+    linkdir=${1}
+
+	for triple in hexagon-unknown-linux-musl hexagon-unknown-none-elf
+	do
+		ln -sf --relative ${linkdir}/llvm-ar ${linkdir}/${triple}-ar
+		ln -sf --relative ${linkdir}/llvm-objdump ${linkdir}/${triple}-objdump
+		ln -sf --relative ${linkdir}/llvm-objcopy ${linkdir}/${triple}-objcopy
+		ln -sf --relative ${linkdir}/llvm-readelf ${linkdir}/${triple}-readelf
+		ln -sf --relative ${linkdir}/llvm-ranlib ${linkdir}/${triple}-ranlib
+	done
+
+#	ln -sf --relative ${linkdir}/clang ${linkdir}/hexagon-unknown-none-elf-clang
+#	ln -sf --relative ${linkdir}/clang ${linkdir}/hexagon-unknown-none-elf-clang++
 }
 
 build_clang_rt_builtins() {
