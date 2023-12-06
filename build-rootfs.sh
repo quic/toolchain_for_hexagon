@@ -144,6 +144,7 @@ build_kernel() {
 		LLVM_IAS=1 \
 		KBUILD_VERBOSE=1 \
 		vmlinux
+	install -D ../obj_linux/vmlinux ${HEX_TOOLS_TARGET_BASE}/boot/vmlinux
 }
 
 get_src_tarballs() {
