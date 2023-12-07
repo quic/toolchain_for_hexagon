@@ -39,6 +39,7 @@ build_llvm_clang_cross() {
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		${EXTRA} \
 		-C ./hexagon-unknown-linux-musl-clang.cmake \
+		-C ./hexagon-unknown-linux-musl-clang-cross.cmake \
 		-DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
 		-B ./obj_llvm_${triple} \
 		-S ./llvm-project/llvm
@@ -64,6 +65,7 @@ build_llvm_clang() {
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
 		-DLLVM_ENABLE_PIC:BOOL=OFF \
 		-C ./hexagon-unknown-linux-musl-clang.cmake \
+		-C ./hexagon-unknown-linux-musl-clang-cross.cmake \
 		-B ./obj_llvm \
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm -- -v all install

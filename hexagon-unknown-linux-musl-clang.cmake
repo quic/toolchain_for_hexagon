@@ -6,15 +6,7 @@ set(CLANG_DEFAULT_OBJCOPY "llvm-objcopy" CACHE STRING "")
 set(CLANG_DEFAULT_RTLIB "compiler-rt" CACHE STRING "")
 set(CLANG_DEFAULT_UNWINDLIB "libunwind" CACHE STRING "")
 set(CLANG_DEFAULT_LINKER "lld" CACHE STRING "")
-set(DEFAULT_SYSROOT "../target/hexagon-unknown-linux-musl/" CACHE STRING "")
 set(LLVM_ENABLE_PROJECTS "clang;lld" CACHE STRING "")
-
-set(CLANG_LINKS_TO_CREATE
-            hexagon-unknown-linux-musl-clang++
-            hexagon-unknown-linux-musl-clang
-            hexagon-unknown-none-elf-clang++
-            hexagon-unknown-none-elf-clang
-            CACHE STRING "")
 
 set(LLVM_INCLUDE_TESTS OFF CACHE BOOL "")
 set(LLVM_INCLUDE_DOCS OFF CACHE BOOL "")
