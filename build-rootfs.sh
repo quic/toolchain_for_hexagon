@@ -70,10 +70,9 @@ build_busybox() {
 
 build_canadian_clang() {
 	cd ${BASE}
-	mkdir -p obj_canadian
-	cd obj_canadian
 
-	cmake -G Ninja \
+	PATH=${TOOLCHAIN_BIN}:${PATH} \
+		cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX:PATH=${ROOTFS} \
 		-DLLVM_CCACHE_BUILD:BOOL=OFF \
@@ -82,20 +81,16 @@ build_canadian_clang() {
 		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		-DCMAKE_SYSTEM_NAME:STRING=Linux \
-		-DCMAKE_C_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DCMAKE_ASM_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang" \
-		-DCMAKE_CXX_COMPILER:STRING="${TOOLCHAIN_BIN}/hexagon-unknown-linux-musl-clang++" \
 		-DLLVM_CONFIG_PATH=${TOOLCHAIN_BIN}/llvm-config \
 		-DLLVM_TABLEGEN=${TOOLCHAIN_BIN}/llvm-tblgen \
 		-DCLANG_TABLEGEN=${BASE}/obj_llvm/bin/clang-tblgen \
-		-DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF \
-		-DLLVM_BUILD_BENCHMARKS:BOOL=OFF \
 		-DCMAKE_C_FLAGS:STRING="-G0 -mlong-calls" \
 		-DCMAKE_CXX_FLAGS:STRING="-G0 -mlong-calls" \
-		-DLLVM_DEFAULT_TARGET_TRIPLE=hexagon-unknown-linux-musl \
 		-DLLVM_TARGET_ARCH="Hexagon" \
 		-DLLVM_BUILD_RUNTIME:BOOL=OFF \
 		-DBUILD_SHARED_LIBS:BOOL=OFF \
+		-DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF \
+		-DLLVM_BUILD_BENCHMARKS:BOOL=OFF \
 		-DLLVM_INCLUDE_TESTS:BOOL=OFF \
 		-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF \
 		-DLLVM_INCLUDE_UTILS:BOOL=OFF \
@@ -104,10 +99,13 @@ build_canadian_clang() {
 		-DLLVM_ENABLE_PIC:BOOL=OFF \
 		-DLLVM_TARGETS_TO_BUILD:STRING="Hexagon" \
 		-DLLVM_ENABLE_PROJECTS:STRING="clang;lld" \
-		../llvm-project/llvm
+		-C ./hexagon-unknown-linux-musl-clang.cmake \
+		-C ./hexagon-linux-cross.cmake \
+		-B ./obj_canadian \
+		-S ./llvm-project/llvm
 
-        ninja -v
-        ninja -v install
+		cmake --build ./obj_canadian -- -v
+		cmake --build ./obj_canadian -- -v install
 }
 
 build_dropbear() {
@@ -182,7 +180,7 @@ build_busybox
 #build_dropbear
 #build_cpython
 
-#build_canadian_clang
+build_canadian_clang
 
 cat <<'EOF' > ${ROOTFS}/init
 #!/bin/sh
