@@ -63,7 +63,7 @@ ENV MAKE_TARBALLS 1
 
 ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
 ARG QEMU_REPO=https://github.com/quic/qemu
-ARG QEMU_REF=hexagon-sysemu-02-dec-2023
+ARG QEMU_REF=hexagon-sysemu-12-dec-2023
 
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/7243e0d3a9d7e0f08d21fc194a05749e0bb26725.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.13.tar.xz
