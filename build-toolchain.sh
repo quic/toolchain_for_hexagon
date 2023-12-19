@@ -16,6 +16,9 @@ build_llvm_clang_cross() {
 	if [[ "${triple}" =~ "windows" ]]; then
 		EXTRA="-C windows-gnu-target.cmake"
 	fi
+	if [[ "${HOST_CLANG_VER-}" -ne "" ]]; then
+		EXTRA="${EXTRA-} -DHOST_CLANG_VER=${HOST_CLANG_VER}"
+	fi
 	if [[ "${IN_CONTAINER-0}" -ne 1 ]]; then
 		CMAKE_CCACHE="-DLLVM_CCACHE_BUILD:BOOL=ON"
 	fi
@@ -38,9 +41,9 @@ build_llvm_clang_cross() {
 		-DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		${EXTRA} \
+		-C ./llvm-tools.cmake \
 		-C ./hexagon-unknown-linux-musl-clang.cmake \
 		-C ./hexagon-unknown-linux-musl-clang-cross.cmake \
-		-DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
 		-B ./obj_llvm_${triple} \
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm_${triple} -- -v all install
@@ -309,8 +312,7 @@ python3.8 --version
 
 build_llvm_clang
 
-CROSS_TRIPLES="aarch64-windows-gnu x86_64-windows-gnu aarch64-linux-gnu aarch64-macos"
-CROSS_TRIPLES=""
+CROSS_TRIPLES="aarch64-windows-gnu x86_64-windows-gnu x86_64-linux-musl aarch64-linux-gnu aarch64-macos"
 for t in ${CROSS_TRIPLES}
 do
 	build_llvm_clang_cross ${t}

@@ -8,3 +8,4 @@ set(CLANG_LINKS_TO_CREATE
             hexagon-unknown-none-elf-clang
             CACHE STRING "")
 
+set(LLVM_INSTALL_TOOLCHAIN_ONLY ON CACHE BOOL "")
