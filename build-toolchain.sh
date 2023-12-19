@@ -47,6 +47,9 @@ build_llvm_clang_cross() {
 		-B ./obj_llvm_${triple} \
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm_${triple} -- -v all install
+	if [[ "${IN_CONTAINER-0}" -eq 1 ]]; then
+		rm -rf ./obj_llvm_${triple}
+	fi
 	DEST_BIN=${TOOLCHAIN_INSTALL}/${triple}/bin
 	add_symlinks ${DEST_BIN}
 }
