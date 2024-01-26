@@ -42,3 +42,6 @@ Sample usage:
     ./build-toolchain.sh 2>&1 | tee build_${ARTIFACT_TAG}.log
     BUSYBOX_SRC_URL=https://busybox.net/downloads/busybox-1.33.1.tar.bz2 \
        ./build-rootfs.sh 2>&1 | tee build_root.log
+
+Alternatively, you can run `build-in-container.sh` to build everything in Docker
+container and extract the results to `./hexagon-artifacts`.
