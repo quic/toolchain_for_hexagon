@@ -52,19 +52,18 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt build-dep -yy --arch-only qemu clang python3
 
+# From env.sh
+ARG QEMU_REPO QEMU_REF ARTIFACT_BASE ARTIFACT_TAG
+
 ENV VER 17.0.6
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
-ENV ARTIFACT_BASE /usr/local/hexagon-artifacts
 ENV MAKE_TARBALLS 1
 #ENV HOST_LLVM_VERSION 10
 #ENV CMAKE_VER 3.16.6
 #ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-Linux-x86_64.tar.gz
 
 ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
-ARG QEMU_REPO=https://github.com/quic/qemu
-ARG QEMU_REF=hexagon-sysemu-12-dec-2023
-
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/7243e0d3a9d7e0f08d21fc194a05749e0bb26725.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.13.tar.xz
 
@@ -78,7 +77,6 @@ ADD *.cmake /root/hexagon-toolchain/
 RUN cd /root/hexagon-toolchain && ./get-src-tarballs.sh ${PWD} ${TOOLCHAIN_INSTALL}/manifest
 
 ENV IN_CONTAINER 1
-ARG ARTIFACT_TAG=${VER}
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
 RUN cd /root/hexagon-toolchain && ./build-toolchain.sh ${ARTIFACT_TAG}
 
