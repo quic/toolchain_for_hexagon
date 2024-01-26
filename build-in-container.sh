@@ -15,12 +15,15 @@ DOCKER_BUILD_ARGS="
 
 #build
 docker build ${DOCKER_BUILD_ARGS} -t hexagon:latest -f ./Dockerfile .
+docker build ${DOCKER_BUILD_ARGS} -t hexagon-win:latest -f ./cross-win/Dockerfile .
 
 #debug
 docker images
 
 #extract artifacts
-docker rm -f tmp_container
-docker create --name tmp_container hexagon:latest
-docker cp tmp_container:/usr/local/hexagon-artifacts ./hexagon-artifacts
-docker rm tmp_container
+for name in  hexagon-win; do
+    docker rm -f tmp_container
+    docker create --name tmp_container $name:latest
+    docker cp tmp_container:/usr/local/hexagon-artifacts ./hexagon-artifacts
+    docker rm tmp_container
+done
