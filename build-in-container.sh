@@ -14,7 +14,7 @@ DOCKER_BUILD_ARGS="
 --build-arg ARTIFACT_TAG=${ARTIFACT_TAG}"
 
 #build
-docker build ${DOCKER_BUILD_ARGS} -t hexagon:latest -f ./Dockerfile .
+#docker build ${DOCKER_BUILD_ARGS} -t hexagon:latest -f ./Dockerfile .
 docker build ${DOCKER_BUILD_ARGS} -t hexagon-win:latest -f ./cross-win/Dockerfile .
 
 #debug
