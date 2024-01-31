@@ -15,3 +15,7 @@ set(COMPILER_RT_DEFAULT_TARGET_TRIPLE hexagon-unknown-linux-musl CACHE STRING ""
 set(COMPILER_RT_BUILD_BUILTINS OFF CACHE BOOL "")
 set(COMPILER_RT_BUILD_SANITIZERS ON CACHE BOOL "")
 set(COMPILER_RT_SUPPORTED_ARCH hexagon CACHE STRING "")
+
+# This was added as a fix/workaround for changes introduced by llvm-project
+# commit https://github.com/llvm/llvm-project/commit/ab41ea4be364dcac32d0c4ec990735c8adb279c8
+set(CXX_SUPPORTS_NOSTDLIBXX_FLAG OFF CACHE BOOL "")
