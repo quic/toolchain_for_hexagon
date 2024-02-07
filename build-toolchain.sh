@@ -340,11 +340,11 @@ build_qemu
 cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
 #   XZ_OPT="-e9T0" tar cJf ${RESULTS_DIR}/${REL_NAME}.tar.xz -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}
-    tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/x86_64-linux-gnu | xz -e9T0 > ${RESULTS_DIR}/${REL_NAME}.tar.xz
+    tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/x86_64-linux-gnu | xz --fast --threads 0 > ${RESULTS_DIR}/${REL_NAME}.tar.xz
 	for t in ${CROSS_TRIPLES}
 	do
 		if [[ -d ${TOOLCHAIN_INSTALL_REL}/${t} ]]; then
-			tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/${t} | xz -e9T0 > ${RESULTS_DIR}/${REL_NAME}_${t}.tar.xz
+			tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/${t} | xz --fast --threads 0 > ${RESULTS_DIR}/${REL_NAME}_${t}.tar.xz
 		fi
 	done
     cd ${RESULTS_DIR}
