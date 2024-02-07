@@ -21,7 +21,7 @@ docker build ${DOCKER_BUILD_ARGS} -t hexagon-win:latest -f ./cross-win/Dockerfil
 docker images
 
 #extract artifacts
-for name in  hexagon-win; do
+for name in hexagon hexagon-win; do
     docker rm -f tmp_container
     docker create --name tmp_container $name:latest
     docker cp tmp_container:/usr/local/hexagon-artifacts ./hexagon-artifacts
