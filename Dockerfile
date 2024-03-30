@@ -65,7 +65,7 @@ ENV MAKE_TARBALLS 1
 
 ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/d125203fcb134febcde6ca32181554560b67c790.tar.gz
-ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.13.tar.xz
+ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.7.11.tar.xz
 
 #ENV PYTHON_SRC_URL https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz
 #ADD get-host-clang-cmake-python.sh /root/hexagon-toolchain/get-host-clang-cmake-python.sh
