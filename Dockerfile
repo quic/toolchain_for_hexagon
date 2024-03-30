@@ -55,7 +55,7 @@ RUN apt update && \
 # From env.sh
 ARG QEMU_REPO QEMU_REF ARTIFACT_BASE ARTIFACT_TAG
 
-ENV VER 17.0.6
+ENV VER 18.1.2
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV MAKE_TARBALLS 1
