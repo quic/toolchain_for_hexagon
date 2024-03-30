@@ -82,7 +82,7 @@ RUN cd /root/hexagon-toolchain && ./build-toolchain.sh ${ARTIFACT_TAG}
 
 ARG TEST_TOOLCHAIN=1
 
-ENV BUSYBOX_SRC_URL https://busybox.net/downloads/busybox-1.33.1.tar.bz2
+ENV BUSYBOX_SRC_URL https://busybox.net/downloads/busybox-1.36.1.tar.bz2
 ADD build-rootfs.sh /root/hexagon-toolchain/build-rootfs.sh
 RUN cd /root/hexagon-toolchain && ./build-rootfs.sh
 
