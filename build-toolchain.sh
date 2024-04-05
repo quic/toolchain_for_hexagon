@@ -298,9 +298,9 @@ REL_NAME=$(basename ${TOOLCHAIN_INSTALL_REL})
 BASE=$(readlink -f ${PWD})
 
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
-    echo toolchain will be placed in ${RESULTS_DIR}/${REL_NAME}.tar.xz
+    echo toolchain will be placed in ${RESULTS_DIR}/${REL_NAME}.tar.zst
     echo creating empty file there as a test:
-    echo '' > ${RESULTS_DIR}/${REL_NAME}.tar.xz
+    echo '' > ${RESULTS_DIR}/${REL_NAME}.tar.zst
 fi
 
 ccache --show-stats
@@ -347,14 +347,13 @@ build_qemu
 
 cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
-#   XZ_OPT="-e9T0" tar cJf ${RESULTS_DIR}/${REL_NAME}.tar.xz -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}
-    tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/x86_64-linux-gnu | xz --fast --threads 0 > ${RESULTS_DIR}/${REL_NAME}.tar.xz
+    tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/x86_64-linux-gnu | zstd --fast -T0 > ${RESULTS_DIR}/${REL_NAME}.tar.zst
 	for t in ${CROSS_TRIPLES}
 	do
 		if [[ -d ${TOOLCHAIN_INSTALL_REL}/${t} ]]; then
-			tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/${t} | xz --fast --threads 0 > ${RESULTS_DIR}/${REL_NAME}_${t}.tar.xz
+			tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/${t} | zstd --fast -T0 > ${RESULTS_DIR}/${REL_NAME}_${t}.tar.zst
 		fi
 	done
     cd ${RESULTS_DIR}
-    sha256sum *.tar.xz | tee SHA256SUMS
+    sha256sum *.tar.zst | tee SHA256SUMS
 fi
