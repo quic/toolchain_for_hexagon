@@ -200,6 +200,7 @@ build_libs() {
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
 		-C ./hexagon-linux-cross.cmake \
 		-C ./hexagon-linux-runtimes.cmake \
+		-C ./hexagon-linux-clangrt.cmake \
 		-B ./obj_libs \
 		-S ./llvm-project/runtimes
 
