@@ -39,8 +39,11 @@ test_llvm() {
 
 	cmake --build ./obj_test-suite_${OPT_FLAVOR} -- -v -k 0
 #	cmake --build ./obj_test-suite_${OPT_FLAVOR} -- -v check
-	python3 ${BASE}/obj_llvm/bin/llvm-lit -v --max-tests=${LLVM_TS_LIMIT} \
-		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} ./obj_test-suite_${OPT_FLAVOR}
+	python3 ${BASE}/obj_llvm/bin/llvm-lit -v \
+		--max-tests=${LLVM_TS_LIMIT} \
+		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} \
+		-o ${RESULTS_DIR}/test_res_${OPT_FLAVOR}.json \
+		./obj_test-suite_${OPT_FLAVOR}/{SingleSource/Regression/C,External/SPEC,Bitcode/Regression}
 	llvm_result=${?}
 }
 
