@@ -42,8 +42,8 @@ build_llvm_clang_cross() {
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		${EXTRA} \
 		-C ./llvm-tools.cmake \
-		-C ./hexagon-unknown-linux-musl-clang.cmake \
-		-C ./hexagon-unknown-linux-musl-clang-cross.cmake \
+		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang.cmake \
+		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang-cross.cmake \
 		-B ./obj_llvm_${triple} \
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm_${triple} -- -v all install
@@ -70,8 +70,8 @@ build_llvm_clang() {
 		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
 		-DLLVM_ENABLE_PIC:BOOL=OFF \
-		-C ./hexagon-unknown-linux-musl-clang.cmake \
-		-C ./hexagon-unknown-linux-musl-clang-cross.cmake \
+		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang.cmake \
+		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang-cross.cmake \
 		-B ./obj_llvm \
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm -- -v all install
@@ -115,7 +115,7 @@ build_clang_rt_builtins() {
 		-DCAN_TARGET_x86_64=0 \
 		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
-		-C ./hexagon-linux-builtins.cmake \
+		-C ./llvm-project/compiler-rt/cmake/caches/hexagon-linux-builtins.cmake \
 		-C ./hexagon-linux-cross.cmake \
 		-B ./obj_clang_rt \
 		-S ./llvm-project/compiler-rt
@@ -205,8 +205,8 @@ build_libs() {
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
 		-C ./hexagon-linux-cross.cmake \
-		-C ./hexagon-linux-runtimes.cmake \
-		-C ./hexagon-linux-clangrt.cmake \
+		-C ./llvm-project/libcxx/cmake/caches/hexagon-linux-runtimes.cmake \
+		-C ./llvm-project/compiler-rt/cmake/caches/hexagon-linux-clangrt.cmake \
 		-B ./obj_libs \
 		-S ./llvm-project/runtimes
 
