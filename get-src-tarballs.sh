@@ -9,12 +9,14 @@ get_src_tarballs() {
 	cd ${SRC_DIR}
 	mkdir -p ${MANIFEST_DIR}
 
-	wget --quiet ${LLVM_SRC_URL} -O llvm-project.tar.xz
-	mkdir llvm-project
-	cd llvm-project
-	tar xf ../llvm-project.tar.xz --strip-components=1
-	rm ../llvm-project.tar.xz
-	echo ${LLVM_SRC_URL} > ${MANIFEST_DIR}/llvm-project.txt
+#	wget --quiet ${LLVM_SRC_URL} -O llvm-project.tar.xz
+#	mkdir llvm-project
+#	cd llvm-project
+#	tar xf ../llvm-project.tar.xz --strip-components=1
+#	rm ../llvm-project.tar.xz
+	git clone --depth=1 --branch=bcain-boot-qemu-13-Sept-2024 https://github.com/androm3da/llvm-project.git
+#	echo ${LLVM_SRC_URL} > ${MANIFEST_DIR}/llvm-project.txt
+	echo bcain-boot-qemu-13-Sept-2024 > ${MANIFEST_DIR}/llvm-project.txt
 	cd -
 
 	git clone --branch ${QEMU_REF} ${QEMU_REPO}
