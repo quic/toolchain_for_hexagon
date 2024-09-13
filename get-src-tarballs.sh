@@ -19,10 +19,12 @@ get_src_tarballs() {
 	echo bcain-boot-qemu-13-Sept-2024 > ${MANIFEST_DIR}/llvm-project.txt
 	cd -
 
-	git clone --branch ${QEMU_REF} ${QEMU_REPO}
-	cd qemu
-	git remote -v > ${MANIFEST_DIR}/qemu.txt
-	git log -3 HEAD >> ${MANIFEST_DIR}/qemu.txt
+#	git clone --branch ${QEMU_REF} ${QEMU_REPO}
+#	cd qemu
+#	git remote -v > ${MANIFEST_DIR}/qemu.txt
+#	git log -3 HEAD >> ${MANIFEST_DIR}/qemu.txt
+	git clone --depth=1 --branch=bcain-boot-qemu-13-Sept-2024 https://github.com/quic/qemu.git
+	echo bcain-boot-qemu-13-Sept-2024 > ${MANIFEST_DIR}/qemu.txt
 	cd -
 
 	wget --quiet ${MUSL_SRC_URL} -O musl.tar.xz
