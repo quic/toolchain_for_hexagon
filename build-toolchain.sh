@@ -243,6 +243,7 @@ build_qemu() {
 	CC=$(which gcc) \
 	PATH=${TOOLCHAIN_BIN}:${PATH} \
 	../qemu/configure --enable-fdt --disable-capstone --disable-guest-agent \
+	                  --enable-slirp \
 	                  --disable-containers \
 	                  --python=$(which python3.8) \
 		--target-list=hexagon-softmmu,hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu \
