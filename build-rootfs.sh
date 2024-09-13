@@ -126,6 +126,24 @@ build_minivm() {
 		install
 }
 
+build_init() {
+    cd ${BASE}
+    mkdir -p obj_init
+    cd obj_init
+    make -C ../test_init install \
+        DESTDIR=${ROOTFS} \
+        CC=hexagon-unknown-linux-musl-clang \
+        LD=hexagon-unknown-linux-musl-clang \
+
+}
+
+build_initramfs() {
+#   ../scripts/gen_initramfs_list.sh ${ROOTFS} | \
+#       cpio --create --format newc > initramfs_data.cpio
+    cd ${ROOTFS}
+    find . | cpio --create --format newc > ${BASE}/linux/usr/initramfs_data.cpio
+}
+
 build_kernel() {
 	cd ${BASE}
 	mkdir -p obj_linux
@@ -188,8 +206,8 @@ cp -ra ${HEX_SYSROOT}/usr ${ROOTFS}/
 get_src_tarballs
 
 build_minivm
-build_kernel
 build_busybox
+build_init
 
 #build_dropbear
 #build_cpython
@@ -203,9 +221,13 @@ mount -t proc none /proc
 mount -t sysfs none /sys
 mount -t debugfs none /sys/kernel/debug
 
-exec /bin/sh
+exec /bin/test_init
 EOF
 chmod +x ${ROOTFS}/init
+
+build_initramfs
+build_kernel
+
 
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
     tar c -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL}) | xz -e9T0 > ${RESULTS_DIR}/hexagon_rootfs_${STAMP}.tar.xz
