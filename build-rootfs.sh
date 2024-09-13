@@ -129,7 +129,7 @@ build_kernel() {
 		LLVM=1 \
 		LLVM_IAS=1 \
 		KBUILD_VERBOSE=1 \
-		comet_defconfig
+		qemu_defconfig
 
 	make -j $(nproc) \
 		O=../obj_linux ARCH=hexagon \

@@ -131,7 +131,7 @@ config_kernel() {
 		LD=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/ld.lld \
 		LLVM=1 \
 		LLVM_IAS=1 \
-		KBUILD_VERBOSE=1 comet_defconfig
+		KBUILD_VERBOSE=1 qemu_defconfig
 }
 
 build_kernel_headers() {
