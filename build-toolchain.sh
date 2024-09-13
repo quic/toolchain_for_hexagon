@@ -84,11 +84,15 @@ add_symlinks() {
 
 	for triple in hexagon-unknown-linux-musl hexagon-unknown-none-elf
 	do
+		ln -sf --relative ${linkdir}/llvm-size ${linkdir}/${triple}-size
+		ln -sf --relative ${linkdir}/llvm-strip ${linkdir}/${triple}-strip
+		ln -sf --relative ${linkdir}/llvm-nm ${linkdir}/${triple}-nm
 		ln -sf --relative ${linkdir}/llvm-ar ${linkdir}/${triple}-ar
 		ln -sf --relative ${linkdir}/llvm-objdump ${linkdir}/${triple}-objdump
 		ln -sf --relative ${linkdir}/llvm-objcopy ${linkdir}/${triple}-objcopy
 		ln -sf --relative ${linkdir}/llvm-readelf ${linkdir}/${triple}-readelf
 		ln -sf --relative ${linkdir}/llvm-ranlib ${linkdir}/${triple}-ranlib
+		ln -sf --relative ${linkdir}/llvm-config ${linkdir}/${triple}-llvm-config
 	done
 
 #	ln -sf --relative ${linkdir}/clang ${linkdir}/hexagon-unknown-none-elf-clang
