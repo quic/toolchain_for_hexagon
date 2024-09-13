@@ -84,6 +84,9 @@ add_symlinks() {
 
 	for triple in hexagon-unknown-linux-musl hexagon-unknown-none-elf
 	do
+		ln -sf --relative ${linkdir}/llvm-size ${linkdir}/${triple}-size
+		ln -sf --relative ${linkdir}/llvm-strip ${linkdir}/${triple}-strip
+		ln -sf --relative ${linkdir}/llvm-nm ${linkdir}/${triple}-nm
 		ln -sf --relative ${linkdir}/llvm-ar ${linkdir}/${triple}-ar
 		ln -sf --relative ${linkdir}/llvm-objdump ${linkdir}/${triple}-objdump
 		ln -sf --relative ${linkdir}/llvm-objcopy ${linkdir}/${triple}-objcopy
@@ -317,6 +320,7 @@ python3.8 --version
 build_llvm_clang
 
 CROSS_TRIPLES="aarch64-windows-gnu x86_64-windows-gnu x86_64-linux-musl aarch64-linux-gnu aarch64-macos"
+CROSS_TRIPLES=""
 for t in ${CROSS_TRIPLES}
 do
 	build_llvm_clang_cross ${t}
