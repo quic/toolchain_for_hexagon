@@ -31,11 +31,13 @@ get_src_tarballs() {
 	echo ${MUSL_SRC_URL} > ${MANIFEST_DIR}/musl.txt
 	cd -
 
-	wget --quiet ${LINUX_SRC_URL} -O linux.tar.xz
-	mkdir linux
-	cd linux
-	tar xf ../linux.tar.xz --strip-components=1
-	echo ${LINUX_SRC_URL} > ${MANIFEST_DIR}/linux.txt
+#	wget --quiet ${LINUX_SRC_URL} -O linux.tar.xz
+#	mkdir linux
+#	cd linux
+#	tar xf ../linux.tar.xz --strip-components=1
+	git clone --depth=1 --branch=bcain-boot-qemu-13-Sept-2024 https://git.kernel.org/pub/scm/linux/kernel/git/bcain/linux.git
+#	echo ${LINUX_SRC_URL} > ${MANIFEST_DIR}/linux.txt
+	echo bcain-boot-qemu-13-Sept-2024 > ${MANIFEST_DIR}/linux.txt
 	cd -
 }
 
