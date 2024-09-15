@@ -76,6 +76,8 @@ ADD get-src-tarballs.sh /root/hexagon-toolchain/get-src-tarballs.sh
 ADD *.cmake /root/hexagon-toolchain/
 RUN cd /root/hexagon-toolchain && ./get-src-tarballs.sh ${PWD} ${TOOLCHAIN_INSTALL}/manifest
 
+ADD test_init/test_init.c test_init/Makefile /root/hexagon-toolchain/test_init/
+
 ENV IN_CONTAINER 1
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
 RUN cd /root/hexagon-toolchain && ./build-toolchain.sh ${ARTIFACT_TAG}
