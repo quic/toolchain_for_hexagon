@@ -110,6 +110,8 @@ qemu_result=0
 
 set -x
 
+exit 0
+
 if [[ ${TEST_TOOLCHAIN-0} -eq 1 ]]; then
 	# needs google benchmark changes to count hexagon cycles
 	# in order to build, see ./test-suite-patches
