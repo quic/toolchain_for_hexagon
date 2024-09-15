@@ -142,7 +142,9 @@ build_kernel() {
 		LLVM_IAS=1 \
 		KBUILD_VERBOSE=1 \
 		vmlinux
+	hexagon-unknown-linux-musl-objcopy -O binary ../obj_linux/vmlinux ../obj_linux/vmlinux.bin
 	install -D ../obj_linux/vmlinux ${ROOTFS}/boot/vmlinux
+	install -D ../obj_linux/vmlinux.bin ${ROOTFS}/boot/vmlinux.bin
 }
 
 get_src_tarballs() {
