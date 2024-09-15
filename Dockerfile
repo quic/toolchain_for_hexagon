@@ -44,6 +44,7 @@ RUN apt update && \
 	software-properties-common \
         bc \
         ninja-build \
+	cpio \
 	unzip
 
 RUN cat /etc/apt/sources.list | sed "s/^deb\ /deb-src /" >> /etc/apt/sources.list
