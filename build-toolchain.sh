@@ -82,7 +82,7 @@ build_llvm_clang() {
 add_symlinks() {
     linkdir=${1}
 
-	for triple in hexagon-unknown-linux-musl hexagon-unknown-none-elf
+	for triple in hexagon-unknown-linux-musl hexagon-unknown-none-elf hexagon-linux-musl hexagon-none-elf
 	do
 		ln -sf --relative ${linkdir}/llvm-size ${linkdir}/${triple}-size
 		ln -sf --relative ${linkdir}/llvm-strip ${linkdir}/${triple}-strip
@@ -167,6 +167,7 @@ build_musl_headers() {
 
 	cd ${HEX_SYSROOT}/..
 	ln -sf hexagon-unknown-linux-musl hexagon
+	ln -sf hexagon-unknown-linux-musl hexagon-linux-musl
 }
 
 build_musl() {
