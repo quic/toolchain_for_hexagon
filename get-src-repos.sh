@@ -17,6 +17,7 @@ git clone -q https://git.busybox.net/busybox/ &
 
 
 git clone -q --branch=hexagon https://github.com/quic/musl &
+git clone -q https://github.com/quic/hexagonMVM &
 git clone -q https://github.com/qemu/qemu &
 
 wait

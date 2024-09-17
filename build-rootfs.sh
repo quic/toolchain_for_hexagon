@@ -115,6 +115,17 @@ build_dropbear() {
 	echo FIXME TODO
 }
 
+build_minivm() {
+	cd ${BASE}
+	mkdir -p obj_minivm
+	cd obj_minivm
+	make --directory=../hexagonMVM \
+		ARCH=hexagon-unknown-linux-musl- \
+		prefix=${ROOTFS}/boot \
+		bindir=${ROOTFS}/boot \
+		install
+}
+
 build_kernel() {
 	cd ${BASE}
 	mkdir -p obj_linux
@@ -176,6 +187,7 @@ cp -ra ${HEX_SYSROOT}/usr ${ROOTFS}/
 
 get_src_tarballs
 
+build_minivm
 build_kernel
 build_busybox
 
