@@ -23,6 +23,14 @@ get_src_tarballs() {
 	git log -3 HEAD >> ${MANIFEST_DIR}/qemu.txt
 	cd -
 
+	wget --quiet ${HEXMVM_SRC_URL} -O hexagonMVM.tar.xz
+	mkdir hexagonMVM
+	cd hexagonMVM
+	tar xf ../hexagonMVM.tar.xz --strip-components=1
+	rm ../hexagonMVM.tar.xz
+	echo ${HEXMVM_SRC_URL} > ${MANIFEST_DIR}/hexagonMVM.txt
+	cd -
+
 	wget --quiet ${MUSL_SRC_URL} -O musl.tar.xz
 	mkdir musl
 	cd musl
