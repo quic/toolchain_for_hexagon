@@ -14,10 +14,10 @@ RUN cp /etc/apt/sources.list /etc/apt/sources.list~ && \
 
 # Windows libs
 RUN for url in https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-glib2-2.74.6-1-any.pkg.tar.zst \
-               https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-pixman-0.40.0-2-any.pkg.tar.zst \
+               https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-pixman-0.42.2-1-any.pkg.tar.zst \
                https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-libpng-1.6.40-1-any.pkg.tar.zst \
                https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-gettext-0.21.1-2-any.pkg.tar.zst \
-               https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-pcre2-10.40-1-any.pkg.tar.zst \
+               https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-pcre2-10.41-1-any.pkg.tar.zst \
                https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-libiconv-1.17-3-any.pkg.tar.zst; do \
         wget $url && tar xvf $(basename $url) || exit 1; \
     done && \
