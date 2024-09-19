@@ -322,6 +322,7 @@ python3.8 --version
 build_llvm_clang
 
 CROSS_TRIPLES="aarch64-windows-gnu x86_64-windows-gnu x86_64-linux-musl aarch64-linux-gnu aarch64-macos"
+CROSS_TRIPLES="aarch64-windows-gnu x86_64-windows-gnu x86_64-linux-musl aarch64-linux-gnu"
 for t in ${CROSS_TRIPLES}
 do
 	build_llvm_clang_cross ${t}
