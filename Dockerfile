@@ -54,7 +54,10 @@ RUN apt update && \
     apt build-dep -yy --arch-only qemu clang python3
 
 # From env.sh
-ARG QEMU_REPO QEMU_REF ARTIFACT_BASE ARTIFACT_TAG
+ARG QEMU_REPO
+ARG QEMU_REF
+ARG ARTIFACT_BASE
+ARG ARTIFACT_TAG
 
 ENV VER 19.1.0
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/

@@ -35,7 +35,10 @@ RUN winecfg || true
 COPY cross-win/wine/* /root/.wine/
 
 # From env.sh
-ARG QEMU_REPO QEMU_REF ARTIFACT_BASE ARTIFACT_TAG 
+ARG QEMU_REPO
+ARG QEMU_REF
+ARG ARTIFACT_BASE
+ARG ARTIFACT_TAG
 
 ARG QEMU_INSTALL_DIR=qemu-hexagon-x86_64-win
 ARG QEMU_CLONE_DIR=/root/qemu
