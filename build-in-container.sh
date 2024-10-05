@@ -26,7 +26,7 @@ docker images
 
 #extract artifacts
 for name in hexagon hexagon-win; do
-    docker rm -f tmp_container
+    docker rm -f tmp_container || /bin/true
     docker create --name tmp_container $name:latest
     docker cp tmp_container:/usr/local/hexagon-artifacts ./hexagon-artifacts
     docker rm tmp_container
