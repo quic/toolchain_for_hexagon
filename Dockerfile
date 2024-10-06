@@ -45,6 +45,7 @@ RUN apt update && \
         bc \
         ninja-build \
 	cpio \
+	python3-psutil \
 	unzip
 
 RUN cat /etc/apt/sources.list | sed "s/^deb\ /deb-src /" >> /etc/apt/sources.list
