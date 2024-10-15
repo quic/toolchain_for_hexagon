@@ -10,6 +10,10 @@ Toolchain for Hexagon is licensed under the BSD 3-clause "New" or "Revised" Lice
 
 ## Usage
 
+Refer to [examples](examples/README.md) for sample use cases for this toolchain.
+
+## Building the toolchain
+
 Checkout the required source repos like `llvm-project`, `musl`, etc.  Invoke
 `get-src-tarballs.sh` with the corresponding `*_SRC_URL` links to the specific
 releases to use (see `Dockerfile` for reference / last-known-good versions).
