@@ -1,0 +1,13 @@
+[package]
+name = "contrived"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[build-dependencies]
+cc = "1.1.21"
+bindgen = "0.70.1"
+build-target = "0.4.0"
+
+[dependencies]
+

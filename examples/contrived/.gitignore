@@ -1,0 +1,4 @@
+/target
+*.swp
+*.a
+*.a.o
