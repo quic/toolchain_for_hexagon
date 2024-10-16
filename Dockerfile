@@ -38,6 +38,7 @@ RUN apt update && \
 	python3.8-venv \
 	curl \
 	xz-utils \
+	zstd \
 	ca-certificates \
 	ccache \
 	git \
