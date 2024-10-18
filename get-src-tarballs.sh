@@ -47,6 +47,13 @@ get_src_tarballs() {
 	echo ${MUSL_SRC_URL} > ${MANIFEST_DIR}/musl.txt
 	cd -
 
+	wget --quiet ${BUILDROOT_SRC_URL} -O buildroot.tar.xz
+	mkdir buildroot
+	cd buildroot
+	tar xf ../buildroot.tar.xz --strip-components=1
+	echo ${BUILDROOT_SRC_URL} > ${MANIFEST_DIR}/buildroot.txt
+	cd -
+
 	wget --quiet ${LINUX_SRC_URL} -O linux.tar.xz
 	mkdir linux
 	cd linux
