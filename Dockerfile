@@ -75,6 +75,7 @@ ENV MUSL_SRC_URL https://github.com/quic/musl/archive/d125203fcb134febcde6ca3218
 ENV HEXMVM_SRC_URL https://github.com/quic/hexagonMVM/archive/v0.1.1.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.7.11.tar.xz
 ENV BUSYBOX_SRC_URL https://busybox.net/downloads/busybox-1.36.1.tar.bz2
+ENV BUILDROOT_SRC_URL https://github.com/quic/buildroot/archive/hexagon-2024.10.18a.tar.gz
 
 #ENV PYTHON_SRC_URL https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz
 #ADD get-host-clang-cmake-python.sh /root/hexagon-toolchain/get-host-clang-cmake-python.sh
@@ -90,6 +91,9 @@ ADD test_init/test_init.c test_init/Makefile /root/hexagon-toolchain/test_init/
 ENV IN_CONTAINER 1
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
 RUN cd /root/hexagon-toolchain && ./build-toolchain.sh ${ARTIFACT_TAG}
+
+ADD build-buildroot.sh /root/hexagon-toolchain/build-buildroot.sh
+RUN cd /root/hexagon-toolchain && ./build-buildroot.sh
 
 ARG TEST_TOOLCHAIN=1
 
