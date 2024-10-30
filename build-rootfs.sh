@@ -230,11 +230,10 @@ build_kernel
 
 
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
-    tar c -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL}) | xz -e9T0 > ${RESULTS_DIR}/hexagon_rootfs_${STAMP}.tar.xz
-#   XZ_OPT="-8 --threads=0" tar c ${RESULTS_DIR}/hexagon_rootfs_${STAMP}.tar.xz  -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL})
+    tar c -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL}) | zstd --fast -T0 > ${RESULTS_DIR}/hexagon_rootfs_${STAMP}.tar.zst
 
     cd ${RESULTS_DIR}
-    sha256sum hexagon_rootfs_${STAMP}.tar.xz > hexagon_rootfs_${STAMP}.tar.xz.sha256
+    sha256sum hexagon_rootfs_${STAMP}.tar.zst > hexagon_rootfs_${STAMP}.tar.zst.sha256
 fi
 
 if [[ ${TEST_TOOLCHAIN-0} -eq 0 ]]; then
