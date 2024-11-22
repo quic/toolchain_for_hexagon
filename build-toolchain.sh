@@ -93,6 +93,7 @@ add_symlinks() {
 		ln -sf --relative ${linkdir}/llvm-readelf ${linkdir}/${triple}-readelf
 		ln -sf --relative ${linkdir}/llvm-ranlib ${linkdir}/${triple}-ranlib
 		ln -sf --relative ${linkdir}/llvm-config ${linkdir}/${triple}-llvm-config
+		ln -sf --relative ${linkdir}/ld.lld ${linkdir}/${triple}-ld.lld
 	done
 
 #	ln -sf --relative ${linkdir}/clang ${linkdir}/hexagon-unknown-none-elf-clang
