@@ -19,4 +19,5 @@ export FORCE_UNSAFE_CONFIGURE=1
 make -C buildroot/ O=../obj_buildroot/ qcom_dsp_qemu_defconfig
 cd obj_buildroot
 make -j
+make legal-info
 install -D ./images/* ${ARTIFACT_BASE}/${ARTIFACT_TAG}/
