@@ -62,7 +62,7 @@ ARG QEMU_REF=hexagon-sysemu-04-oct-2024
 ARG ARTIFACT_BASE
 ARG ARTIFACT_TAG
 
-ENV VER 19.1.2
+ENV VER 19.1.5
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV MAKE_TARBALLS 1
