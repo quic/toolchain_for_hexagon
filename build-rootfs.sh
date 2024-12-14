@@ -230,11 +230,12 @@ build_kernel
 
 
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
-    tar c -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL}) | xz -e9T0 > ${RESULTS_DIR}/hexagon_rootfs_${STAMP}.tar.xz
-#   XZ_OPT="-8 --threads=0" tar c ${RESULTS_DIR}/hexagon_rootfs_${STAMP}.tar.xz  -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL})
+    tar c -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL})/boot | gzip --fast > ${RESULTS_DIR}/hexagon_minivm_${STAMP}.tar.gz
+    tar c -C $(dirname ${ROOT_INSTALL_REL}) $(basename ${ROOT_INSTALL_REL}) | gzip --fast > ${RESULTS_DIR}/hexagon_rootfs_${STAMP}.tar.gz
 
     cd ${RESULTS_DIR}
-    sha256sum hexagon_rootfs_${STAMP}.tar.xz > hexagon_rootfs_${STAMP}.tar.xz.sha256
+    sha256sum hexagon_minivm_${STAMP}.tar.gz > hexagon_minivm_${STAMP}.tar.gz.sha256
+    sha256sum hexagon_rootfs_${STAMP}.tar.gz > hexagon_rootfs_${STAMP}.tar.gz.sha256
 fi
 
 if [[ ${TEST_TOOLCHAIN-0} -eq 0 ]]; then
