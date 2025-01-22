@@ -43,7 +43,7 @@ test_llvm() {
 		--max-tests=${LLVM_TS_LIMIT} \
 		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} \
 		-o ${RESULTS_DIR}/test_res_${OPT_FLAVOR}.json \
-		./obj_test-suite_${OPT_FLAVOR}/{SingleSource/Regression/C,External/SPEC,Bitcode/Regression}
+		./obj_test-suite_${OPT_FLAVOR}/{MultiSource/Benchmarks/{mediabench,VersaBench,Trimaran,BitBench,Rodinia,Fhourstones*,FreeBench},SingleSource/Benchmarks/{Linpack,Dhrystone,BenchmarkGame,Stanford},SingleSource/Regression/C,External/SPEC,Bitcode/Regression}
 	llvm_result=${?}
 }
 
