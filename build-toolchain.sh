@@ -276,8 +276,6 @@ purge_builds() {
 	rm -rf ${BASE}/obj_*/
 }
 
-set +x
-
 TOOLCHAIN_INSTALL_REL=${TOOLCHAIN_INSTALL}
 TOOLCHAIN_INSTALL=$(readlink -f ${TOOLCHAIN_INSTALL})
 TOOLCHAIN_BIN=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
