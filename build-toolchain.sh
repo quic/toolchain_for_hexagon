@@ -120,7 +120,7 @@ build_clang_rt_builtins() {
 		-B ./obj_clang_rt \
 		-S ./llvm-project/compiler-rt
 
-	cmake --build ./obj_clang_rt -- -v install
+	cmake --build ./obj_clang_rt -- -v install-builtins
 }
 
 
