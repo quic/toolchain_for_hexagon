@@ -64,7 +64,6 @@ test_qemu() {
 	make check V=1 --keep-going
 	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin:$PATH \
 		QEMU_LD_PREFIX=${HEX_TOOLS_TARGET_BASE} \
-		CROSS_CFLAGS="-G0 -O0 -mv65 -fno-builtin" \
 		make check-tcg TIMEOUT=180 CROSS_CC_GUEST=hexagon-unknown-linux-musl-clang V=1 --keep-going
 	qemu_result=${?}
 }
