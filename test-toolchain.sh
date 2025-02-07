@@ -123,12 +123,12 @@ if [[ ${TEST_TOOLCHAIN-0} -eq 1 ]]; then
 	# needs google benchmark changes to count hexagon cycles
 	# in order to build, see ./test-suite-patches
 	set +e
-	for opt in CodeSize O0 MinSize
+	for opt in CodeSize O0 MinSize O2
 	do
 		cmake=$(readlink -f llvm-test-suite/cmake/caches/${opt}.cmake)
 		test_llvm ${cmake} 2>&1 | tee ${RESULTS_DIR}/llvm-test-suite_${opt}.log
 	done
-	test_llvm '' 2>&1 | tee ${RESULTS_DIR}/llvm-test-suite_O2.log
+	test_llvm '' 2>&1 | tee ${RESULTS_DIR}/llvm-test-suite_default.log
 
 	test_libc 2>&1 | tee ${RESULTS_DIR}/libc_test_detail.log
 	test_qemu 2>&1 | tee ${RESULTS_DIR}/qemu_test_check-tcg.log
