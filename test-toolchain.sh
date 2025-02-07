@@ -39,11 +39,21 @@ test_llvm() {
 
 	cmake --build ./obj_test-suite_${OPT_FLAVOR} -- -v -k 0
 #	cmake --build ./obj_test-suite_${OPT_FLAVOR} -- -v check
+	cd ./obj_test-suite_${OPT_FLAVOR}
 	python3 ${BASE}/obj_llvm/bin/llvm-lit -v \
+		--show-all \
+		--show-pass \
+		--show-skipped \
+		--time-tests \
 		--max-tests=${LLVM_TS_LIMIT} \
 		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} \
 		-o ${RESULTS_DIR}/test_res_${OPT_FLAVOR}.json \
-		./obj_test-suite_${OPT_FLAVOR}/{MultiSource/Benchmarks/{mediabench,VersaBench,Trimaran,BitBench,Rodinia,Fhourstones*,FreeBench},SingleSource/Benchmarks/{Linpack,Dhrystone,BenchmarkGame,Stanford},SingleSource/Regression/C,External/SPEC,Bitcode/Regression}
+		MultiSource/Benchmarks/{mediabench,VersaBench,Trimaran,BitBench,Rodinia,Fhourstones*,FreeBench} \
+		SingleSource/Benchmarks/{Linpack,Dhrystone,BenchmarkGame,Stanford} \
+		SingleSource/Regression/C \
+		SingleSource/UnitTests/Vector \
+		External/SPEC \
+		Bitcode/Regression
 	llvm_result=${?}
 }
 
