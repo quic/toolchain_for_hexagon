@@ -48,6 +48,7 @@ RUN git clone --branch ${QEMU_REF} ${QEMU_REPO} ${QEMU_CLONE_DIR} && \
     CC=$(which gcc) && \
     ../configure --without-default-features --disable-fdt --disable-capstone \
                  --disable-guest-agent --disable-containers \
+                 --enable-plugins \
                  --cross-prefix=x86_64-w64-mingw32- \
                  --target-list=hexagon-softmmu \
                  --prefix=${QEMU_CLONE_DIR}/build/${QEMU_INSTALL_DIR} && \
