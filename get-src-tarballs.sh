@@ -17,6 +17,14 @@ get_src_tarballs() {
 	echo ${LLVM_SRC_URL} > ${MANIFEST_DIR}/llvm-project.txt
 	cd -
 
+	wget --quiet ${ELD_SRC_URL} -O eld.tar.xz
+	mkdir llvm-project/eld
+	cd llvm-project/eld
+	tar xf ../../eld.tar.xz --strip-components=1
+	rm ../../eld.tar.xz
+	echo ${ELD_SRC_URL} > ${MANIFEST_DIR}/eld.txt
+	cd -
+
 	wget --quiet ${LLVM_TESTS_SRC_URL} -O llvm-test-suite.tar.xz
 	mkdir llvm-test-suite
 	cd llvm-test-suite

@@ -22,6 +22,7 @@ git clone -q https://github.com/quic/hexagonMVM &
 git clone -q https://github.com/qemu/qemu &
 
 wait
+git clone -q https://github.com/qualcomm/eld/ llvm-project/eld/
 
 dump_checkout_info() {
 	out=${1}
