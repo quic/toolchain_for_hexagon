@@ -39,11 +39,21 @@ test_llvm() {
 
 	cmake --build ./obj_test-suite_${OPT_FLAVOR} -- -v -k 0
 #	cmake --build ./obj_test-suite_${OPT_FLAVOR} -- -v check
+	cd ./obj_test-suite_${OPT_FLAVOR}
 	python3 ${BASE}/obj_llvm/bin/llvm-lit -v \
+		--show-all \
+		--show-pass \
+		--show-skipped \
+		--time-tests \
 		--max-tests=${LLVM_TS_LIMIT} \
 		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} \
 		-o ${RESULTS_DIR}/test_res_${OPT_FLAVOR}.json \
-		./obj_test-suite_${OPT_FLAVOR}/{MultiSource/Benchmarks/{mediabench,VersaBench,Trimaran,BitBench,Rodinia,Fhourstones*,FreeBench},SingleSource/Benchmarks/{Linpack,Dhrystone,BenchmarkGame,Stanford},SingleSource/Regression/C,External/SPEC,Bitcode/Regression}
+		MultiSource/Benchmarks/{mediabench,VersaBench,Trimaran,BitBench,Rodinia,Fhourstones*,FreeBench} \
+		SingleSource/Benchmarks/{Linpack,Dhrystone,BenchmarkGame,Stanford} \
+		SingleSource/Regression/C \
+		SingleSource/UnitTests/Vector \
+		External/SPEC \
+		Bitcode/Regression
 	llvm_result=${?}
 }
 
@@ -54,7 +64,6 @@ test_qemu() {
 	make check V=1 --keep-going
 	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin:$PATH \
 		QEMU_LD_PREFIX=${HEX_TOOLS_TARGET_BASE} \
-		CROSS_CFLAGS="-G0 -O0 -mv65 -fno-builtin" \
 		make check-tcg TIMEOUT=180 CROSS_CC_GUEST=hexagon-unknown-linux-musl-clang V=1 --keep-going
 	qemu_result=${?}
 }
@@ -114,12 +123,12 @@ if [[ ${TEST_TOOLCHAIN-0} -eq 1 ]]; then
 	# needs google benchmark changes to count hexagon cycles
 	# in order to build, see ./test-suite-patches
 	set +e
-	for opt in CodeSize O0 MinSize
+	for opt in target-hexagon-v79-O2 O0 CodeSize MinSize O2
 	do
 		cmake=$(readlink -f llvm-test-suite/cmake/caches/${opt}.cmake)
 		test_llvm ${cmake} 2>&1 | tee ${RESULTS_DIR}/llvm-test-suite_${opt}.log
 	done
-	test_llvm '' 2>&1 | tee ${RESULTS_DIR}/llvm-test-suite_O2.log
+	test_llvm '' 2>&1 | tee ${RESULTS_DIR}/llvm-test-suite_default.log
 
 	test_libc 2>&1 | tee ${RESULTS_DIR}/libc_test_detail.log
 	test_qemu 2>&1 | tee ${RESULTS_DIR}/qemu_test_check-tcg.log

@@ -62,7 +62,7 @@ ARG QEMU_REF=hexagon-sysemu-04-oct-2024
 ARG ARTIFACT_BASE
 ARG ARTIFACT_TAG
 
-ENV VER 20.0.0-rc0
+ENV VER 20.1.0-rc3
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV MAKE_TARBALLS 1
@@ -70,8 +70,8 @@ ENV MAKE_TARBALLS 1
 #ENV CMAKE_VER 3.16.6
 #ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-Linux-x86_64.tar.gz
 
-ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-21-init.tar.gz
-ENV LLVM_TESTS_SRC_URL https://github.com/llvm/llvm-test-suite/archive/llvmorg-19.1.5.tar.gz
+ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/${VER}.tar.gz
+ENV LLVM_TESTS_SRC_URL https://github.com/llvm/llvm-test-suite/archive/${VER}.tar.gz
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/d125203fcb134febcde6ca32181554560b67c790.tar.gz
 ENV HEXMVM_SRC_URL https://github.com/quic/hexagonMVM/archive/v0.1.1.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.7.11.tar.xz
