@@ -15,6 +15,7 @@ git clone --depth=1 -q https://github.com/python/cpython &
 git clone --depth=1 -q git://repo.or.cz/libc-test &
 git clone -q https://git.busybox.net/busybox/ &
 git clone -q https://github.com/quic/buildroot/ &
+git clone -q https://github.com/qualcomm/eld/ &
 
 
 git clone -q --branch=hexagon https://github.com/quic/musl &
