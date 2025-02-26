@@ -23,6 +23,11 @@ build_llvm_clang_cross() {
 	if [[ "${IN_CONTAINER-0}" -ne 1 ]]; then
 		CMAKE_CCACHE="-DLLVM_CCACHE_BUILD:BOOL=ON"
 	fi
+	ELD=""
+	if [[ "${pic}" =~ "ON" ]]; then
+		ELD="-DLLVM_EXTERNAL_PROJECTS=eld \
+		     -DLLVM_EXTERNAL_ELD_SOURCE_DIR=${PWD}/llvm-project/eld"
+	fi
 
 	CC="zig cc --target=${triple}" \
 	ASM="zig cc --target=${triple}" \
@@ -38,6 +43,7 @@ build_llvm_clang_cross() {
 		-DLLVM_INCLUDE_TESTS:BOOL=OFF \
 		-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF \
 		-DLLVM_ENABLE_PIC:BOOL="${pic}" \
+		${ELD} \
 		-DLLVM_NATIVE_TOOL_DIR=${PWD}/obj_llvm/bin \
 		-DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
@@ -71,6 +77,8 @@ build_llvm_clang() {
 		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
 		-DLLVM_ENABLE_PIC:BOOL=ON \
+		-DLLVM_EXTERNAL_PROJECTS=eld \
+		-DLLVM_EXTERNAL_ELD_SOURCE_DIR=${PWD}/llvm-project/eld \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang.cmake \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang-cross.cmake \
 		-B ./obj_llvm \
@@ -95,6 +103,7 @@ add_symlinks() {
 		ln -sf --relative ${linkdir}/llvm-ranlib ${linkdir}/${triple}-ranlib
 		ln -sf --relative ${linkdir}/llvm-config ${linkdir}/${triple}-llvm-config
 		ln -sf --relative ${linkdir}/ld.lld ${linkdir}/${triple}-ld.lld
+		ln -sf --relative ${linkdir}/ld.eld ${linkdir}/${triple}-ld.eld
 	done
 
 #	ln -sf --relative ${linkdir}/clang ${linkdir}/hexagon-unknown-none-elf-clang
