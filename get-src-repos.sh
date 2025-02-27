@@ -21,12 +21,14 @@ git clone -q --branch=hexagon https://github.com/quic/musl &
 git clone -q https://github.com/quic/hexagonMVM &
 git clone -q https://github.com/qemu/qemu &
 
+gitdirs="qemu llvm-test-suite musl linux busybox hexagonMVM llvm-project libc-test buildroot cpython"
+
 wait
 
 dump_checkout_info() {
 	out=${1}
 	mkdir -p ${out}
-	for d in ./*
+	for d in ${gitdirs}
 	do
 		if [[ -d ${d} ]]; then
 			proj=$(basename ${d})

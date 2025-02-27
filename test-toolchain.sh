@@ -9,6 +9,10 @@ LLVM_TS_PER_TEST_TIMEOUT_SEC=$((10 * 60))
 # For now let's limit the scope of this test suite
 LLVM_TS_LIMIT=400
 
+if [ -z "${CURRENT_SOURCE_DIR}" ]; then
+  CURRENT_SOURCE_DIR=${PWD}
+fi
+
 set -euo pipefail
 
 test_llvm() {
@@ -33,7 +37,7 @@ test_llvm() {
 		-DTEST_SUITE_LIT:FILEPATH="${BASE}/obj_llvm/bin/llvm-lit" \
 		-DBENCHMARK_USE_LIBCXX:BOOL=ON \
 		-DSMALL_PROBLEM_SIZE:BOOL=ON \
-		-C ./hexagon-linux-cross.cmake \
+		-C ${CURRENT_SOURCE_DIR}/hexagon-linux-cross.cmake \
 		-B ./obj_test-suite_${OPT_FLAVOR} \
 		-S ./llvm-test-suite
 
