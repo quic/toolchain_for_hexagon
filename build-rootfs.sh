@@ -5,6 +5,10 @@
 
 STAMP=${1-$(date +"%Y_%b_%d")}
 
+if [ -z "${CURRENT_SOURCE_DIR}" ]; then
+  CURRENT_SOURCE_DIR=${PWD}
+fi
+
 set -euo pipefail
 
 
@@ -99,8 +103,8 @@ build_canadian_clang() {
 		-DLLVM_ENABLE_PIC:BOOL=OFF \
 		-DLLVM_TARGETS_TO_BUILD:STRING="Hexagon" \
 		-DLLVM_ENABLE_PROJECTS:STRING="clang;lld" \
-		-C ./hexagon-unknown-linux-musl-clang.cmake \
-		-C ./hexagon-linux-cross.cmake \
+		-C ${CURRENT_SOURCE_DIR}/hexagon-unknown-linux-musl-clang.cmake \
+		-C ${CURRENT_SOURCE_DIR}/hexagon-linux-cross.cmake \
 		-B ./obj_canadian \
 		-S ./llvm-project/llvm
 

@@ -4,6 +4,9 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 
 STAMP=${1-$(date +"%Y_%b_%d")}
+if [ -z "${CURRENT_SOURCE_DIR}" ]; then
+  CURRENT_SOURCE_DIR=${PWD}
+fi
 
 set -euo pipefail
 set -x
@@ -41,7 +44,7 @@ build_llvm_clang_cross() {
 		-DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		${EXTRA} \
-		-C ./llvm-tools.cmake \
+		-C ${CURRENT_SOURCE_DIR}/llvm-tools.cmake \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang.cmake \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang-cross.cmake \
 		-B ./obj_llvm_${triple} \
@@ -120,7 +123,7 @@ build_clang_rt_builtins() {
 		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
 		-C ./llvm-project/compiler-rt/cmake/caches/hexagon-linux-builtins.cmake \
-		-C ./hexagon-linux-cross.cmake \
+		-C ${CURRENT_SOURCE_DIR}/hexagon-linux-cross.cmake \
 		-B ./obj_clang_rt \
 		-S ./llvm-project/compiler-rt
 
@@ -131,7 +134,7 @@ build_clang_rt_builtins() {
 
 config_kernel() {
 	cd ${BASE}
-	mkdir obj_linux
+	mkdir -p obj_linux
 	cd linux
 	make O=../obj_linux ARCH=hexagon \
 		CROSS_COMPILE=hexagon-unknown-linux-musl- \
@@ -208,7 +211,7 @@ build_libs() {
 		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
-		-C ./hexagon-linux-cross.cmake \
+		-C ${CURRENT_SOURCE_DIR}/hexagon-linux-cross.cmake \
 		-C ./llvm-project/libcxx/cmake/caches/hexagon-linux-runtimes.cmake \
 		-C ./llvm-project/compiler-rt/cmake/caches/hexagon-linux-clangrt.cmake \
 		-B ./obj_libs \
@@ -236,7 +239,7 @@ build_sanitizers() {
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
 		-DCOMPILER_RT_SUPPORTED_ARCH=hexagon \
 		-DLLVM_TARGET_TRIPLE=hexagon-unknown-linux-musl \
-		-C ./hexagon-linux-cross.cmake \
+		-C ${CURRENT_SOURCE_DIR}/hexagon-linux-cross.cmake \
 		-B ./obj_san \
 		-S ./llvm-project/compiler-rt
 	cmake --build ./obj_san -- -v install-compiler-rt
@@ -253,7 +256,7 @@ build_qemu() {
 	                  --enable-slirp \
 	                  --enable-plugins \
 	                  --disable-containers \
-	                  --python=$(which python3.8) \
+	                  --python=$(which python) \
 		--target-list=hexagon-softmmu,hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu \
 
 #	--cc=clang \
@@ -322,7 +325,7 @@ which clang
 clang --version
 ninja --version
 cmake --version
-python3.8 --version
+python --version
 
 build_llvm_clang
 
