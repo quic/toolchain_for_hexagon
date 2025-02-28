@@ -10,6 +10,7 @@ set -x
 
 build_llvm_clang_cross() {
 	triple=${1}
+	pic="${2-OFF}"
 	cd ${BASE}
 
 	EXTRA=""
@@ -36,7 +37,7 @@ build_llvm_clang_cross() {
 		-DLLVM_TOOL_DSYMUTIL_BUILD:BOOL=OFF \
 		-DLLVM_INCLUDE_TESTS:BOOL=OFF \
 		-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF \
-		-DLLVM_ENABLE_PIC:BOOL=OFF \
+		-DLLVM_ENABLE_PIC:BOOL="${pic}" \
 		-DLLVM_NATIVE_TOOL_DIR=${PWD}/obj_llvm/bin \
 		-DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=ON \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
@@ -69,7 +70,7 @@ build_llvm_clang() {
 		-DLLVM_ENABLE_LIBCXX:BOOL=ON \
 		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
-		-DLLVM_ENABLE_PIC:BOOL=OFF \
+		-DLLVM_ENABLE_PIC:BOOL=ON \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang.cmake \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang-cross.cmake \
 		-B ./obj_llvm \
@@ -322,11 +323,17 @@ python3.8 --version
 
 build_llvm_clang
 
-CROSS_TRIPLES="aarch64-windows-gnu x86_64-windows-gnu x86_64-linux-musl aarch64-linux-gnu aarch64-macos"
-CROSS_TRIPLES="aarch64-windows-gnu x86_64-windows-gnu x86_64-linux-musl aarch64-linux-gnu"
+#CROSS_TRIPLES="x86_64-linux-musl aarch64-linux-gnu aarch64-macos"
+CROSS_TRIPLES="x86_64-linux-musl aarch64-linux-musl"
+CROSS_TRIPLES_PIC="aarch64-windows-gnu x86_64-windows-gnu"
+CROSS_ALL="${CROSS_TRIPLES} ${CROSS_TRIPLES_PIC}"
 for t in ${CROSS_TRIPLES}
 do
 	build_llvm_clang_cross ${t}
+done
+for t in ${CROSS_TRIPLES_PIC}
+do
+	build_llvm_clang_cross ${t} ON
 done
 ccache --show-stats
 config_kernel
@@ -339,7 +346,7 @@ build_libs
 #build_sanitizers
 
 
-for t in ${CROSS_TRIPLES}
+for t in ${CROSS_ALL}
 do
 	cp -ra ${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target ${TOOLCHAIN_INSTALL}/${t}
 done
@@ -348,7 +355,7 @@ build_qemu
 cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
     tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/x86_64-linux-gnu | zstd --fast -T0 > ${RESULTS_DIR}/${REL_NAME}.tar.zst
-	for t in ${CROSS_TRIPLES}
+	for t in ${CROSS_ALL}
 	do
 		if [[ -d ${TOOLCHAIN_INSTALL_REL}/${t} ]]; then
 			tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/${t} | zstd --fast -T0 > ${RESULTS_DIR}/${REL_NAME}_${t}.tar.zst
