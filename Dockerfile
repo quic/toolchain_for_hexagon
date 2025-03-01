@@ -98,8 +98,5 @@ RUN cd /root/hexagon-toolchain && ./build-buildroot.sh
 
 ARG TEST_TOOLCHAIN=1
 
-ADD build-rootfs.sh /root/hexagon-toolchain/build-rootfs.sh
-RUN cd /root/hexagon-toolchain && ./build-rootfs.sh
-
 ADD test-toolchain.sh /root/hexagon-toolchain/test-toolchain.sh
 RUN cd /root/hexagon-toolchain && ./test-toolchain.sh
