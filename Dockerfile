@@ -70,7 +70,6 @@ ENV MAKE_TARBALLS 1
 ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
 ENV LLVM_TESTS_SRC_URL https://github.com/llvm/llvm-test-suite/archive/llvmorg-${VER}.tar.gz
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/hexagon-mar1-2025.tar.gz
-ENV HEXMVM_SRC_URL https://github.com/quic/hexagonMVM/archive/v0.1.1.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.13.5.tar.xz
 ENV BUSYBOX_SRC_URL https://busybox.net/downloads/busybox-1.36.1.tar.bz2
 ENV BUILDROOT_SRC_URL https://github.com/quic/buildroot/archive/hexagon-2025.01.26.tar.gz
