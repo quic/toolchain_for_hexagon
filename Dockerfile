@@ -66,9 +66,6 @@ ENV VER 20.1.0-rc3
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-${VER}-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV MAKE_TARBALLS 1
-#ENV HOST_LLVM_VERSION 10
-#ENV CMAKE_VER 3.16.6
-#ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-Linux-x86_64.tar.gz
 
 ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/llvmorg-${VER}.tar.gz
 ENV LLVM_TESTS_SRC_URL https://github.com/llvm/llvm-test-suite/archive/llvmorg-${VER}.tar.gz
@@ -77,10 +74,6 @@ ENV HEXMVM_SRC_URL https://github.com/quic/hexagonMVM/archive/v0.1.1.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.13.5.tar.xz
 ENV BUSYBOX_SRC_URL https://busybox.net/downloads/busybox-1.36.1.tar.bz2
 ENV BUILDROOT_SRC_URL https://github.com/quic/buildroot/archive/hexagon-2025.01.26.tar.gz
-
-#ENV PYTHON_SRC_URL https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz
-#ADD get-host-clang-cmake-python.sh /root/hexagon-toolchain/get-host-clang-cmake-python.sh
-#RUN cd /root/hexagon-toolchain && ./get-host-clang-cmake-python.sh
 
 ADD test-suite-patches /root/hexagon-toolchain/test-suite-patches
 ADD get-src-tarballs.sh /root/hexagon-toolchain/get-src-tarballs.sh
