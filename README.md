@@ -22,7 +22,7 @@ Or instead you can check out the trunk of those projects' repos using
 
 Once the source repos are setup, build the toolchain using `build-toolchain.sh`.
 
-`build-toolchain.sh` / `build-rootfs.sh` expect the inputs below as environment
+`build-toolchain.sh` / `build-buildroot.sh` expect the inputs below as environment
 variables:
 
 * `ARTIFACT_TAG` - the tag from the llvm-project repo with which this release
@@ -45,7 +45,7 @@ Sample usage:
 
     ./build-toolchain.sh 2>&1 | tee build_${ARTIFACT_TAG}.log
     BUSYBOX_SRC_URL=https://busybox.net/downloads/busybox-1.33.1.tar.bz2 \
-       ./build-rootfs.sh 2>&1 | tee build_root.log
+       ./build-buildroot.sh 2>&1 | tee build_buildroot.log
 
 Alternatively, you can run `build-in-container.sh` to build everything in Docker
 container and extract the results to `./hexagon-artifacts`.
