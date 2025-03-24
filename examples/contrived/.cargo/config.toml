@@ -6,4 +6,5 @@ target = [ "hexagon-unknown-linux-musl"]
 
 linker = "hexagon-unknown-linux-musl-clang"
 runner = "qemu-hexagon"
+rustflags = ["-C", "target-cpu=hexagonv68"]
 
