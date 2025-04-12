@@ -110,6 +110,17 @@ add_symlinks() {
 #	ln -sf --relative ${linkdir}/clang ${linkdir}/hexagon-unknown-none-elf-clang++
 }
 
+add_multilib_symlinks() {
+	linkdir=${1}
+
+	cd ${linkdir}
+	for arch in v68 v69 v71 v73 v75 v79
+	do
+		ln -sf --relative  ../usr/lib ./${arch}
+	done
+	cd -
+}
+
 build_clang_rt_builtins() {
 	cd ${BASE}
 
@@ -179,6 +190,9 @@ build_musl_headers() {
 	cd ${HEX_SYSROOT}/..
 	ln -sf hexagon-unknown-linux-musl hexagon
 	ln -sf hexagon-unknown-linux-musl hexagon-linux-musl
+	DEST_TGT_LIB=${HEX_SYSROOT}/lib
+	mkdir -p ${DEST_TGT_LIB}
+	add_multilib_symlinks ${DEST_TGT_LIB}
 }
 
 build_musl() {
