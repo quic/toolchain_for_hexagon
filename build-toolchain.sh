@@ -4,6 +4,7 @@
 #  SPDX-License-Identifier: BSD-3-Clause
 
 STAMP=${1-$(date +"%Y_%b_%d")}
+readonly CC_PREFIX=hexagon-unknown-linux-musl-
 
 set -euo pipefail
 set -x
@@ -132,7 +133,7 @@ config_kernel() {
 	mkdir obj_linux
 	cd linux
 	make O=../obj_linux ARCH=hexagon \
-		CROSS_COMPILE=hexagon-unknown-linux-musl- \
+		CROSS_COMPILE=${CC_PREFIX} \
 		CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/clang \
 		AS=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/clang \
 		LD=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/ld.lld \
@@ -162,7 +163,7 @@ build_musl_headers() {
 	make clean
 
 	CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
-		CROSS_COMPILE=hexagon-unknown-linux-musl- \
+		CROSS_COMPILE=${CC_PREFIX} \
 		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
 		CROSS_CFLAGS="-G0 -O0 -mv65 -fno-builtin --target=hexagon-unknown-linux-musl" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
@@ -178,7 +179,7 @@ build_musl() {
 	cd musl
 	make clean
 
-	CROSS_COMPILE=hexagon-unknown-linux-musl- \
+	CROSS_COMPILE=${CC_PREFIX} \
 		AR=llvm-ar \
 		RANLIB=llvm-ranlib \
 		STRIP=llvm-strip \
