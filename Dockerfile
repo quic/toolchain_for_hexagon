@@ -86,6 +86,7 @@ ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
 RUN cd /root/hexagon-toolchain && ./build-toolchain.sh ${ARTIFACT_TAG}
 
 ADD build-buildroot.sh /root/hexagon-toolchain/build-buildroot.sh
+RUN echo 'remoteencoding = UTF-8' >> ~/.wgetrc
 RUN cd /root/hexagon-toolchain && ./build-buildroot.sh
 
 ARG TEST_TOOLCHAIN=1
