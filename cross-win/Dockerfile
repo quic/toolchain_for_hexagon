@@ -1,14 +1,14 @@
-FROM ubuntu:23.04
+FROM ubuntu:24.04
 
 RUN cp /etc/apt/sources.list /etc/apt/sources.list~ && \
-    sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && \
+    sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources && \
     apt-get -y update && \
     DEBIAN_FRONTEND=noninteractive apt install -y make build-essential \
         wget flex bison unzip python-is-python3 python3-pip \
         ninja-build pkg-config libpixman-1-dev libglib2.0-dev git wget \
         curl libelf-dev libvirglrenderer-dev libepoxy-dev libgtk-3-dev \
         libgcrypt20-dev libgpg-error-dev libzip-dev bash coreutils \
-        git git-lfs libncurses5 mingw-w64 msitools libz-mingw-w64-dev \
+        git git-lfs libncurses6 mingw-w64 msitools libz-mingw-w64-dev \
         pkg-config-mingw-w64-x86-64 zstd cmake wine && \
     DEBIAN_FRONTEND=noninteractive apt build-dep -yy qemu
 
