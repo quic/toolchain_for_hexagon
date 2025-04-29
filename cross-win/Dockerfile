@@ -19,7 +19,7 @@ RUN for url in https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-glib2-2.84.
                https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-gettext-0.22.4-3-any.pkg.tar.zst \
                https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-pcre2-10.45-1-any.pkg.tar.zst \
                https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-libiconv-1.18-1-any.pkg.tar.zst; do \
-        wget $url && tar xvf $(basename $url) || exit 1; \
+        wget $url && tar xvf $(basename $url) --no-same-permissions --no-same-owner || exit 2; \
     done && \
     rm -rf *.tar.zst .[A-Za-z]*
 
