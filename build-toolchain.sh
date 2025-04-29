@@ -162,7 +162,7 @@ build_musl_headers() {
 	make clean
 
 	CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
-		CROSS_COMPILE=hexagon-unknown-linux-musl \
+		CROSS_COMPILE=hexagon-unknown-linux-musl- \
 		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
 		CROSS_CFLAGS="-G0 -O0 -mv65 -fno-builtin --target=hexagon-unknown-linux-musl" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
@@ -182,7 +182,7 @@ build_musl() {
 		AR=llvm-ar \
 		RANLIB=llvm-ranlib \
 		STRIP=llvm-strip \
-		CC=clang \
+		CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
 		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
 		CFLAGS="${MUSL_CFLAGS}" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
