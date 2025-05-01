@@ -73,7 +73,7 @@ ENV LLVM_TESTS_SRC_URL https://github.com/llvm/llvm-test-suite/archive/llvmorg-$
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/hexagon-mar1-2025.tar.gz
 ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.13.5.tar.xz
 ENV BUSYBOX_SRC_URL https://busybox.net/downloads/busybox-1.36.1.tar.bz2
-ENV BUILDROOT_SRC_URL https://github.com/quic/buildroot/archive/hexagon-2025.01.26.tar.gz
+ENV BUILDROOT_SRC_URL https://github.com/quic/buildroot/archive/hexagon-2025.04.30.tar.gz
 
 ADD test-suite-patches /root/hexagon-toolchain/test-suite-patches
 ADD get-src-tarballs.sh /root/hexagon-toolchain/get-src-tarballs.sh
