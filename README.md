@@ -33,6 +33,12 @@ only contain the target includes + libraries.
 * `ARTIFACT_BASE` - the path to put the tarballs + manifests.
 * optional `MAKE_TARBALLS` - if `MAKE_TARBALLS` is set to `1`, it will create
 tarballs of the release and purge the intermediate build artifacts.
+* optional `CROSS_TRIPLES` - if desired, canadian cross toolchains can be
+ built for other targets.  Enabling this requires a
+[zig toolchain](https://ziglang.org/download) on the host system.
+* optional `CROSS_TRIPLES_PIC` - additional cross toolchain builds, built
+with position-independent code.  This is required for eld and implies that
+eld should be included with this toolchain.
 
 Sample usage:
 
@@ -40,12 +46,18 @@ Sample usage:
     export TOOLCHAIN_INSTALL=$PWD/clang+llvm-${ARTIFACT_TAG}-cross-hexagon-unknown-linux-musl
     export ROOT_INSTALL=$PWD/install_rootfs
     export ARTIFACT_BASE=$PWD/artifacts
+    export TEST_TOOLCHAIN=0
+    export CROSS_TRIPLES="x86_64-linux-musl aarch64-linux-musl aarch64-windows-gnu x86_64-windows-gnu aarch64-macos"
+    export CROSS_TRIPLES_PIC=""
 
     mkdir -p ${ARTIFACT_BASE}
 
     ./build-toolchain.sh 2>&1 | tee build_${ARTIFACT_TAG}.log
+    if [[ ${TEST_TOOLCHAIN} -eq 1 ]]; then
+        ./test-toolchain.sh 2>&1 | tee test_${ARTIFACT_TAG}.log
+    fi
     BUSYBOX_SRC_URL=https://busybox.net/downloads/busybox-1.33.1.tar.bz2 \
        ./build-buildroot.sh 2>&1 | tee build_buildroot.log
 
-Alternatively, you can run `build-in-container.sh` to build everything in Docker
+Alternatively, you can run `build-in-container.sh` to build everything in a Docker
 container and extract the results to `./hexagon-artifacts`.
