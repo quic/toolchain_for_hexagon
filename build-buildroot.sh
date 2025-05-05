@@ -15,6 +15,7 @@ export PATH=${TOOLCHAIN_BIN}:${PATH}
 
 # TODO: change build to use unprivileged user
 export FORCE_UNSAFE_CONFIGURE=1
+export BR2_DL_DIR=$PWD/br_download/
 
 make -C buildroot/ O=${PWD}/obj_buildroot/ qcom_dsp_qemu_defconfig
 make -C obj_buildroot -j
