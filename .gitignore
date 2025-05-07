@@ -1,1 +1,9 @@
 /hexagon-artifacts
+obj_*
+llvm-project
+musl
+llvm-test-suite
+linux
+buildroot
+qemu
+br_download
