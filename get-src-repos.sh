@@ -41,3 +41,8 @@ dump_checkout_info() {
 
 mkdir -p ${MANIFEST_DIR}
 dump_checkout_info ${MANIFEST_DIR}
+
+cat <<EOF
+Now that you've cloned the source repos, refer to Dockerfile to find the git refs
+of each repo that should be checked out to build a known good configuration.
+EOF
