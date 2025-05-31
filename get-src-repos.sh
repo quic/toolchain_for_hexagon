@@ -8,6 +8,7 @@ set -euo pipefail
 SRC_DIR=${1}
 MANIFEST_DIR=${2}
 
+echo Cloning repos into "${SRC_DIR}":
 git clone -q https://github.com/llvm/llvm-project &
 git clone -q https://github.com/llvm/llvm-test-suite &
 git clone --depth=1 -q git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux &
