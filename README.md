@@ -22,6 +22,11 @@ Or instead you can check out the trunk of those projects' repos using
 
 Once the source repos are setup, build the toolchain using `build-toolchain.sh`.
 
+> [!IMPORTANT]
+> Note that build-toolchain.sh often makes assumptions about the source repos such
+> that you should only expect it to work if you check out the known-good git refs
+> used for previous releases.
+
 `build-toolchain.sh` / `build-buildroot.sh` expect the inputs below as environment
 variables:
 
