@@ -14,11 +14,14 @@ Refer to [examples](examples/README.md) for sample use cases for this toolchain.
 
 ## Building the toolchain
 
-Checkout the required source repos like `llvm-project`, `musl`, etc.  Invoke
-`get-src-tarballs.sh` with the corresponding `*_SRC_URL` links to the specific
+Checkout the required source repos like `llvm-project`, `musl`, etc.  Either
+invoke `get-src-tarballs.sh` with the corresponding `*_SRC_URL` links to the specific
 releases to use (see `Dockerfile` for reference / last-known-good versions).
+
 Or instead you can check out the trunk of those projects' repos using
-`git` - try invoking `get_src_repos.sh`.
+`git` - try invoking `get-src-repos.sh $PWD $PWD/manifest`.  Once you have
+cloned the repos locally, see `Dockerfile` for reference / last-known-good
+versions to use as a basis.
 
 Once the source repos are setup, build the toolchain using `build-toolchain.sh`.
 
