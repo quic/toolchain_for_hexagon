@@ -277,6 +277,28 @@ build_qemu() {
 	                  --enable-plugins \
 	                  --disable-containers \
 	                  --python=$(which python3.8) \
+	                  --disable-brlapi \
+	                  --disable-spice \
+	                  --disable-vnc \
+	                  --disable-vnc-jpeg \
+	                  --disable-vnc-sasl \
+	                  --disable-gnutls \
+	                  --disable-nettle \
+	                  --disable-gcrypt \
+	                  --disable-seccomp \
+	                  --disable-numa \
+	                  --disable-rdma \
+	                  --disable-libpmem \
+	                  --disable-gtk \
+	                  --disable-sdl \
+	                  --disable-opengl \
+	                  --disable-virglrenderer \
+	                  --disable-png \
+	                  --disable-curses \
+	                  --disable-libssh \
+	                  --disable-libnfs \
+	                  --disable-glusterfs \
+	                  --disable-rbd \
 		--target-list=hexagon-softmmu,hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu \
 
 #	--cc=clang \
