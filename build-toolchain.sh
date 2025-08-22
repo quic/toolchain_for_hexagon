@@ -132,7 +132,7 @@ build_clang_rt_builtins() {
 		-DCMAKE_BUILD_TYPE=Release \
 		-DLLVM_CMAKE_DIR:PATH=${TOOLCHAIN_LIB} \
 		-DCOMPILER_RT_EMULATOR:STRING="${TOOLCHAIN_BIN}/qemu_wrapper.sh" \
-		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
+		-DCMAKE_INSTALL_PREFIX:PATH=$(clang -print-resource-dir)/lib/ \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		-DCOMPILER_RT_OS_DIR= \
 		-DCAN_TARGET_hexagon=1 \
@@ -185,7 +185,7 @@ build_musl_headers() {
 
 	CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
 		CROSS_COMPILE=${CC_PREFIX} \
-		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
+		LIBCC=$(${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang -print-resource-dir)/lib/hexagon-unknown-linux-musl/libclang_rt.builtins.a \
 		CROSS_CFLAGS="-G0 -O0 -mv68 -fno-builtin --target=hexagon-unknown-linux-musl" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
 	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make install-headers
@@ -208,7 +208,7 @@ build_musl() {
 		RANLIB=llvm-ranlib \
 		STRIP=llvm-strip \
 		CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
-		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
+		LIBCC=$(${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang -print-resource-dir)/lib/hexagon-unknown-linux-musl/libclang_rt.builtins.a \
 		CFLAGS="${MUSL_CFLAGS}" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
 	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make -j install
