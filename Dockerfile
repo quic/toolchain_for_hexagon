@@ -10,8 +10,6 @@ RUN apt update && \
 	apt-transport-https ca-certificates \
         eatmydata software-properties-common wget gpgv2 unzip && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
-        add-apt-repository ppa:deadsnakes/ppa && \
-    DEBIAN_FRONTEND=noninteractive eatmydata \
 	wget --quiet https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz && \
 	tar xf ./zig-linux-x86_64-0.11.0.tar.xz --directory /opt && \
 	wget https://apt.llvm.org/llvm.sh && \
@@ -33,9 +31,10 @@ RUN apt update && \
         rsync \
         wget \
 	build-essential \
-	python-is-python3 \
-	python3.8 \
-	python3.8-venv \
+	python3 \
+	python3-venv \
+	python3-distutils \
+	python3-pip \
 	curl \
 	xz-utils \
 	zstd \
@@ -47,7 +46,11 @@ RUN apt update && \
         ninja-build \
 	cpio \
 	python3-psutil \
-	unzip
+	unzip && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 100
+
+# Install Python packages that are not available in Ubuntu repos
+RUN python3 -m pip install tomli tomli-w
 
 RUN cat /etc/apt/sources.list | sed "s/^deb\ /deb-src /" >> /etc/apt/sources.list
 

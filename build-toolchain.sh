@@ -276,7 +276,7 @@ build_qemu() {
 	                  --enable-slirp \
 	                  --enable-plugins \
 	                  --disable-containers \
-	                  --python=$(which python3.8) \
+	                  --python=$(which python3) \
 	                  --disable-brlapi \
 	                  --disable-spice \
 	                  --disable-vnc \
@@ -367,7 +367,7 @@ which clang
 clang --version
 ninja --version
 cmake --version
-python3.8 --version
+python3 --version
 
 build_llvm_clang
 
