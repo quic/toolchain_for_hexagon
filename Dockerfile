@@ -1,5 +1,5 @@
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV HOST_CLANG_VER 12
 ENV PATH="/opt/zig-linux-x86_64-0.11.0:$PATH"
