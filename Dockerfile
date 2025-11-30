@@ -56,7 +56,7 @@ RUN apt update && \
 
 # From env.sh
 ARG QEMU_REPO
-ARG QEMU_REF=hexagon-sysemu-25-feb-2025
+ARG QEMU_REF=hexagon-sysemu-29-nov-2025
 
 ARG ARTIFACT_BASE
 ARG ARTIFACT_TAG
