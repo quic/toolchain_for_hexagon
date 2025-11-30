@@ -12,9 +12,6 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
 	wget --quiet https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz && \
 	tar xf ./zig-linux-x86_64-0.11.0.tar.xz --directory /opt && \
-	wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && \
-	unzip -d /usr/local/bin ninja-linux.zip && \
-	update-alternatives --install /usr/bin/ninja ninja /usr/local/bin/ninja 1 --force && \
     DEBIAN_FRONTEND=noninteractive eatmydata apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt install -y --no-install-recommends \
