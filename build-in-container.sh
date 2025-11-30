@@ -14,7 +14,7 @@ fi
 DOCKER_BUILD_ARGS="
 --build-arg ARTIFACT_BASE=/usr/local/hexagon-artifacts
 --build-arg QEMU_REPO=https://github.com/quic/qemu
---build-arg QEMU_REF=hexagon-sysemu-04-oct-2024
+--build-arg QEMU_REF=hexagon-sysemu-29-nov-2025
 --build-arg ARTIFACT_TAG=${ARTIFACT_TAG}"
 
 #build
