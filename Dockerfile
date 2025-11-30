@@ -1,7 +1,7 @@
 
 FROM ubuntu:22.04
 
-ENV HOST_CLANG_VER 12
+ENV HOST_CLANG_VER 14
 ENV PATH="/opt/zig-linux-x86_64-0.11.0:$PATH"
 
 # Install common build utilities
@@ -12,16 +12,11 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
 	wget --quiet https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz && \
 	tar xf ./zig-linux-x86_64-0.11.0.tar.xz --directory /opt && \
-	wget https://apt.llvm.org/llvm.sh && \
-	chmod +x ./llvm.sh && \
-	bash -x ./llvm.sh  ${HOST_CLANG_VER} && \
 	wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && \
 	unzip -d /usr/local/bin ninja-linux.zip && \
 	update-alternatives --install /usr/bin/ninja ninja /usr/local/bin/ninja 1 --force && \
 	wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - > /usr/share/keyrings/kitware-archive-keyring.gpg && \
 	echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ bionic main' > /etc/apt/sources.list.d/kitware.list && \
-	update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${HOST_CLANG_VER} 100 && \
-	update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${HOST_CLANG_VER} 100 && \
     DEBIAN_FRONTEND=noninteractive eatmydata apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt install -y --no-install-recommends \
@@ -34,6 +29,10 @@ RUN apt update && \
 	python3 \
 	python3-venv \
 	python3-distutils \
+	clang-${HOST_CLANG_VER} \
+	lld-${HOST_CLANG_VER} \
+	libc++-${HOST_CLANG_VER}-dev \
+	libc++abi-${HOST_CLANG_VER}-dev \
 	python3-pip \
 	curl \
 	xz-utils \
@@ -48,6 +47,8 @@ RUN apt update && \
 	python3-psutil \
 	unzip && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 100
+    update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${HOST_CLANG_VER} 100 && \
+    update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${HOST_CLANG_VER} 100 && \
 
 # Install Python packages that are not available in Ubuntu repos
 RUN python3 -m pip install tomli tomli-w
