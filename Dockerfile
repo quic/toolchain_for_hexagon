@@ -15,8 +15,6 @@ RUN apt update && \
 	wget https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip && \
 	unzip -d /usr/local/bin ninja-linux.zip && \
 	update-alternatives --install /usr/bin/ninja ninja /usr/local/bin/ninja 1 --force && \
-	wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - > /usr/share/keyrings/kitware-archive-keyring.gpg && \
-	echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ bionic main' > /etc/apt/sources.list.d/kitware.list && \
     DEBIAN_FRONTEND=noninteractive eatmydata apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt install -y --no-install-recommends \
