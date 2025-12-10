@@ -41,9 +41,9 @@ RUN apt update && \
 	cpio \
 	python3-psutil \
 	unzip && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3 100
     update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${HOST_CLANG_VER} 100 && \
     update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${HOST_CLANG_VER} 100 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 100
 
 # Install Python packages that are not available in Ubuntu repos
 RUN python3 -m pip install tomli tomli-w
