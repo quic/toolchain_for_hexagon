@@ -5,6 +5,7 @@
 
 STAMP=${1-$(date +"%Y_%b_%d")}
 readonly CC_PREFIX=hexagon-unknown-linux-musl-
+readonly ARCH=`uname -p`
 
 set -euo pipefail
 set -x
@@ -73,7 +74,7 @@ build_llvm_clang() {
 
 	CC=clang CXX=clang++ cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_INSTALL_PREFIX:PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/ \
+		-DCMAKE_INSTALL_PREFIX:PATH=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/ \
 		${CMAKE_CCACHE-} \
 		-DLLVM_ENABLE_LLD:BOOL=ON \
 		-DLLVM_ENABLE_LIBCXX:BOOL=ON \
@@ -87,7 +88,7 @@ build_llvm_clang() {
 		-B ./obj_llvm \
 		-S ./llvm-project/llvm
 	cmake --build ./obj_llvm -- -v all install
-	DEST_BIN=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
+	DEST_BIN=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin
 	add_symlinks ${DEST_BIN}
 }
 
@@ -136,7 +137,7 @@ build_clang_rt_builtins() {
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		-DCOMPILER_RT_OS_DIR= \
 		-DCAN_TARGET_hexagon=1 \
-		-DCAN_TARGET_x86_64=0 \
+		-DCAN_TARGET_${ARCH}=0 \
 		-DCMAKE_C_COMPILER_FORCED:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
 		-C ./llvm-project/compiler-rt/cmake/caches/hexagon-linux-builtins.cmake \
@@ -155,9 +156,9 @@ config_kernel() {
 	cd linux
 	make O=../obj_linux ARCH=hexagon \
 		CROSS_COMPILE=${CC_PREFIX} \
-		CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/clang \
-		AS=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/clang \
-		LD=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/ld.lld \
+		CC=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/clang \
+		AS=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/clang \
+		LD=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/ld.lld \
 		LLVM=1 \
 		LLVM_IAS=1 \
 		KBUILD_VERBOSE=1 comet_defconfig
@@ -171,7 +172,7 @@ build_kernel_headers() {
 	cd obj_linux
 	make \
 	        ARCH=hexagon \
-	       	CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/clang \
+		CC=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/clang \
 		INSTALL_HDR_PATH=${HEX_TOOLS_TARGET_BASE} \
 		V=1 \
 		headers_install
@@ -183,12 +184,12 @@ build_musl_headers() {
 	cd musl
 	make clean
 
-	CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
+	CC=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
 		CROSS_COMPILE=${CC_PREFIX} \
 		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
 		CROSS_CFLAGS="-G0 -O0 -mv68 -fno-builtin --target=hexagon-unknown-linux-musl" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
-	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make install-headers
+	PATH=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/:$PATH make install-headers
 
 	cd ${HEX_SYSROOT}/..
 	ln -sf hexagon-unknown-linux-musl hexagon
@@ -207,11 +208,11 @@ build_musl() {
 		AR=llvm-ar \
 		RANLIB=llvm-ranlib \
 		STRIP=llvm-strip \
-		CC=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
+		CC=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/hexagon-unknown-linux-musl-clang \
 		LIBCC=${HEX_TOOLS_TARGET_BASE}/lib/libclang_rt.builtins-hexagon.a \
 		CFLAGS="${MUSL_CFLAGS}" \
 		./configure --target=hexagon --prefix=${HEX_TOOLS_TARGET_BASE}
-	PATH=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/:$PATH make -j install
+	PATH=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/:$PATH make -j install
 	cd ${HEX_TOOLS_TARGET_BASE}/lib
 	ln -sf libc.so ld-musl-hexagon.so
 	ln -sf ld-musl-hexagon.so ld-musl-hexagon.so.1
@@ -299,12 +300,12 @@ build_qemu() {
 	                  --disable-libnfs \
 	                  --disable-glusterfs \
 	                  --disable-rbd \
-		--target-list=hexagon-softmmu,hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu \
+		--target-list=hexagon-softmmu,hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu \
 
 #	--cc=clang \
 #	--cross-prefix=hexagon-unknown-linux-musl-
 #	--cross-cc-hexagon="hexagon-unknown-linux-musl-clang" \
-#		--cross-cc-cflags-hexagon="-mv67 --sysroot=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-musl"
+#		--cross-cc-cflags-hexagon="-mv67 --sysroot=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/target/hexagon-unknown-linux-musl"
 
 	make -j
 	make -j install
@@ -316,7 +317,7 @@ set -euo pipefail
 
 export QEMU_LD_PREFIX=${HEX_TOOLS_TARGET_BASE}
 
-exec ${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin/qemu-hexagon \$*
+exec ${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin/qemu-hexagon \$*
 EOF
 	cp ./qemu_wrapper.sh ${TOOLCHAIN_BIN}/
 	chmod +x ./qemu_wrapper.sh ${TOOLCHAIN_BIN}/qemu_wrapper.sh
@@ -328,9 +329,9 @@ purge_builds() {
 
 TOOLCHAIN_INSTALL_REL=${TOOLCHAIN_INSTALL}
 TOOLCHAIN_INSTALL=$(readlink -f ${TOOLCHAIN_INSTALL})
-TOOLCHAIN_BIN=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
-TOOLCHAIN_LIB=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/lib
-HEX_SYSROOT=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-musl
+TOOLCHAIN_BIN=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin
+TOOLCHAIN_LIB=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/lib
+HEX_SYSROOT=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/target/hexagon-unknown-linux-musl
 HEX_TOOLS_TARGET_BASE=${HEX_SYSROOT}/usr
 ROOT_INSTALL_REL=${ROOT_INSTALL}
 ROOTFS=$(readlink -f ${ROOT_INSTALL})
@@ -393,13 +394,13 @@ build_libs
 
 for t in ${CROSS_ALL}
 do
-	cp -ra ${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target ${TOOLCHAIN_INSTALL}/${t}
+	cp -ra ${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/target ${TOOLCHAIN_INSTALL}/${t}
 done
 build_qemu
 
 cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
-    tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/x86_64-linux-gnu | zstd --fast -T0 > ${RESULTS_DIR}/${REL_NAME}.tar.zst
+    tar c -C $(dirname ${TOOLCHAIN_INSTALL_REL}) ${REL_NAME}/${ARCH}-linux-gnu | zstd --fast -T0 > ${RESULTS_DIR}/${REL_NAME}.tar.zst
 	for t in ${CROSS_ALL}
 	do
 		if [[ -d ${TOOLCHAIN_INSTALL_REL}/${t} ]]; then
