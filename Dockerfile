@@ -43,6 +43,7 @@ RUN apt update && \
 	unzip && \
     update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${HOST_CLANG_VER} 100 && \
     update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${HOST_CLANG_VER} 100 && \
+    DEBIAN_FRONTEND=noninteractive eatmydata apt install -y --no-install-recommends llvm-${HOST_CLANG_VER} && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 100
 
 # Install Python packages that are not available in Ubuntu repos
