@@ -7,7 +7,6 @@ STAMP=${1-$(date +"%Y_%b_%d")}
 LLVM_TS_PER_TEST_TIMEOUT_SEC=$((10 * 60))
 
 # For now let's limit the scope of this test suite
-LLVM_TS_LIMIT=400
 
 set -euo pipefail
 
@@ -45,7 +44,6 @@ test_llvm() {
 		--show-pass \
 		--show-skipped \
 		--time-tests \
-		--max-tests=${LLVM_TS_LIMIT} \
 		--timeout=${LLVM_TS_PER_TEST_TIMEOUT_SEC} \
 		-o ${RESULTS_DIR}/test_res_${OPT_FLAVOR}.json \
 		MultiSource/Benchmarks/{mediabench,VersaBench,Trimaran,BitBench,Rodinia,Fhourstones*,FreeBench} \
