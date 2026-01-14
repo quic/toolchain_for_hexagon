@@ -13,6 +13,7 @@ set -x
 build_llvm_clang_cross() {
 	triple=${1}
 	pic="${2-OFF}"
+	dylib="${3-OFF}"
 	cd ${BASE}
 
 	EXTRA=""
@@ -29,6 +30,10 @@ build_llvm_clang_cross() {
 		ELD="-DLLVM_EXTERNAL_PROJECTS=eld \
 		     -DLLVM_EXTERNAL_ELD_SOURCE_DIR=${PWD}/llvm-project/eld \
 		     "
+	fi
+	if [[ "${dylib}" =~ "ON" ]]; then
+		ELD=""
+		DYLIB="-C ./dylib.cmake"
 	fi
 
 
@@ -52,6 +57,7 @@ build_llvm_clang_cross() {
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		${EXTRA} \
 		-C ./llvm-tools.cmake \
+		${DYLIB-} \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang.cmake \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang-cross.cmake \
 		-B ./obj_llvm_${triple} \
@@ -370,14 +376,18 @@ python3 --version
 
 build_llvm_clang
 
-CROSS_ALL="${CROSS_TRIPLES} ${CROSS_TRIPLES_PIC}"
+CROSS_ALL="${CROSS_TRIPLES} ${CROSS_TRIPLES_PIC} ${CROSS_TRIPLES_DYLIB}"
 for t in ${CROSS_TRIPLES}
 do
 	build_llvm_clang_cross ${t}
 done
 for t in ${CROSS_TRIPLES_PIC}
 do
-	build_llvm_clang_cross ${t} ON
+	build_llvm_clang_cross ${t} ON OFF
+done
+for t in ${CROSS_TRIPLES_DYLIB}
+do
+	build_llvm_clang_cross ${t} ON ON
 done
 ccache --show-stats
 config_kernel

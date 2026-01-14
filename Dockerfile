@@ -84,8 +84,9 @@ ADD test_init/test_init.c test_init/Makefile /root/hexagon-toolchain/test_init/
 
 ENV IN_CONTAINER 1
 
-ENV CROSS_TRIPLES "x86_64-linux-musl aarch64-linux-musl aarch64-windows-gnu x86_64-windows-gnu"
+ENV CROSS_TRIPLES ""
 ENV CROSS_TRIPLES_PIC ""
+ENV CROSS_TRIPLES_DYLIB "x86_64-linux-musl aarch64-linux-musl aarch64-windows-gnu x86_64-windows-gnu"
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
 RUN cd /root/hexagon-toolchain && ./build-toolchain.sh ${ARTIFACT_TAG}
 
