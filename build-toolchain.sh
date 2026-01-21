@@ -33,7 +33,7 @@ build_llvm_clang_cross() {
 	fi
 	if [[ "${dylib}" =~ "ON" ]]; then
 		ELD=""
-		DYLIB="-C ./dylib.cmake"
+		DYLIB="-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang-dylib.cmake"
 	fi
 
 
