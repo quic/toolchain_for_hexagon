@@ -20,6 +20,9 @@ build_llvm_clang_cross() {
 	if [[ "${triple}" =~ "windows" ]]; then
 		EXTRA="-C windows-gnu-target.cmake"
 	fi
+	if [[ "${triple}" =~ "macos" ]]; then
+		EXTRA="${EXTRA} -DCMAKE_TOOLCHAIN_FILE=${PWD}/macos-toolchain.cmake -C macos-target.cmake"
+	fi
 	if [[ "${HOST_CLANG_VER-}" -ne "" ]]; then
 		EXTRA="${EXTRA-} -DHOST_CLANG_VER=${HOST_CLANG_VER}"
 	fi
