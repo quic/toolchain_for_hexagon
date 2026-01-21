@@ -236,6 +236,8 @@ build_libs() {
 		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_TOOLS_TARGET_BASE} \
 		-DCMAKE_CROSSCOMPILING:BOOL=ON \
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
+		-DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=eld" \
+		-DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=eld" \
 		-C ./hexagon-linux-cross.cmake \
 		-C ./llvm-project/libcxx/cmake/caches/hexagon-linux-runtimes.cmake \
 		-C ./llvm-project/compiler-rt/cmake/caches/hexagon-linux-clangrt.cmake \
@@ -264,6 +266,8 @@ build_sanitizers() {
 		-DCMAKE_CXX_COMPILER_FORCED:BOOL=ON \
 		-DCOMPILER_RT_SUPPORTED_ARCH=hexagon \
 		-DLLVM_TARGET_TRIPLE=hexagon-unknown-linux-musl \
+		-DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=eld" \
+		-DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=eld" \
 		-C ./hexagon-linux-cross.cmake \
 		-B ./obj_san \
 		-S ./llvm-project/compiler-rt
