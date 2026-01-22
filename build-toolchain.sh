@@ -152,7 +152,43 @@ build_clang_rt_builtins() {
 	cmake --build ./obj_clang_rt -- -v install-builtins
 }
 
+build_clang_rt_builtins_baremetal() {
+	cd ${BASE}/llvm-project/
 
+	PATH=${TOOLCHAIN_BIN}:${PATH} \
+          cmake -G Ninja \
+          -DCMAKE_C_COMPILER:STRING=`which clang` \
+          -DCMAKE_CXX_COMPILER:STRING=`which clang++` \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DLLVM_CMAKE_DIR:PATH=$TOOLCHAIN_INSTALL \
+          -DCMAKE_INSTALL_PREFIX:PATH=$($TOOLCHAIN_INSTALL/bin/clang -print-resource-dir) \
+          -DCMAKE_ASM_FLAGS="-G0 -mlong-calls -fno-pic" \
+          -DLLVM_ENABLE_PER_TARGET_RUNTIME_DIR=ON \
+          -DLLVM_TARGET_TRIPLE=hexagon-unknown-unknown-elf \
+          -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE=hexagon-unknown-unknown-elf \
+          -DCOMPILER_RT_BUILD_BUILTINS=ON \
+          -DCOMPILER_RT_BUILD_SANITIZERS=OFF \
+          -DCOMPILER_RT_BUILD_XRAY=OFF \
+          -DCOMPILER_RT_BUILD_LIBFUZZER=OFF \
+          -DCOMPILER_RT_BUILD_PROFILE=OFF \
+          -DCOMPILER_RT_BUILD_MEMPROF=OFF \
+          -DCOMPILER_RT_BUILD_ORC=OFF \
+          -DCOMPILER_RT_BUILD_GWP_ASAN=OFF \
+          -DCOMPILER_RT_BUILTINS_ENABLE_PIC=OFF \
+          -DCOMPILER_RT_SUPPORTED_ARCH=hexagon \
+          -DCOMPILER_RT_BAREMETAL_BUILD=ON \
+          -DCMAKE_C_FLAGS="-ffreestanding" \
+          -DCMAKE_CXX_FLAGS="-ffreestanding" \
+          -DCMAKE_CROSSCOMPILING=ON \
+          -DCAN_TARGET_hexagon=1 \
+          -DCMAKE_C_COMPILER_FORCED=ON \
+          -DCMAKE_CXX_COMPILER_FORCED=ON \
+          -DCMAKE_C_COMPILER_TARGET=hexagon-unknown-unknown-elf \
+          -DCMAKE_CXX_COMPILER_TARGET=hexagon-unknown-unknown-elf \
+          -B hexagon-builtins/ \
+          -S compiler-rt/
+	cmake --build ./hexagon-builtins -- -v install-builtins
+}
 
 config_kernel() {
 	cd ${BASE}
@@ -394,6 +430,7 @@ config_kernel
 build_kernel_headers
 build_musl_headers
 build_clang_rt_builtins
+build_clang_rt_builtins_baremetal
 build_musl
 
 build_libs
