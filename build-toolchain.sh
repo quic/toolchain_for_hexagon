@@ -32,6 +32,7 @@ build_llvm_clang_cross() {
 	if [[ "${pic}" =~ "ON" ]]; then
 		ELD="-DLLVM_EXTERNAL_PROJECTS=eld \
 		     -DLLVM_EXTERNAL_ELD_SOURCE_DIR=${PWD}/llvm-project/eld \
+		     -DELD_ENABLE_SYMBOL_VERSIONING:BOOL=ON \
 		     "
 	fi
 	if [[ "${dylib}" =~ "ON" ]]; then
@@ -90,6 +91,7 @@ build_llvm_clang() {
 		-DLLVM_ENABLE_PIC:BOOL=ON \
 		-DLLVM_EXTERNAL_PROJECTS=eld \
 		-DLLVM_EXTERNAL_ELD_SOURCE_DIR=${PWD}/llvm-project/eld \
+		-DELD_ENABLE_SYMBOL_VERSIONING:BOOL=ON \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang.cmake \
 		-C ./llvm-project/clang/cmake/caches/hexagon-unknown-linux-musl-clang-cross.cmake \
 		-B ./obj_llvm \
