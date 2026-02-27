@@ -60,6 +60,14 @@ get_src_tarballs() {
 	tar xf ../linux.tar.xz --strip-components=1
 	echo ${LINUX_SRC_URL} > ${MANIFEST_DIR}/linux.txt
 	cd -
+
+	wget --quiet ${PICOLIBC_SRC_URL} -O picolibc.tar.xz
+	mkdir picolibc
+	cd picolibc
+	tar xf ../picolibc.tar.xz --strip-components=1
+	rm ../picolibc.tar.xz
+	echo ${PICOLIBC_SRC_URL} > ${MANIFEST_DIR}/picolibc.txt
+	cd -
 }
 
 SRC_DIR=${1}
