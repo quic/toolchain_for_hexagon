@@ -332,6 +332,101 @@ EOF
 	chmod +x ./qemu_wrapper.sh ${TOOLCHAIN_BIN}/qemu_wrapper.sh
 }
 
+build_clang_rt_builtins_baremetal() {
+	cd ${BASE}
+
+	PATH=${TOOLCHAIN_BIN}:${PATH} \
+		cmake -G Ninja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DLLVM_CMAKE_DIR:PATH=${TOOLCHAIN_LIB} \
+		-DCMAKE_INSTALL_PREFIX:PATH=${HEX_PICOLIBC_BASE} \
+		-DCMAKE_CROSSCOMPILING:BOOL=ON \
+		-DCOMPILER_RT_OS_DIR= \
+		-DCMAKE_C_COMPILER:STRING=${TOOLCHAIN_BIN}/clang \
+		-DCMAKE_ASM_COMPILER:STRING=${TOOLCHAIN_BIN}/clang \
+		-C ./llvm-project/compiler-rt/cmake/caches/hexagon-builtins-baremetal.cmake \
+		-B ./obj_clang_rt_baremetal \
+		-S ./llvm-project/compiler-rt
+
+	cmake --build ./obj_clang_rt_baremetal -- -v install-builtins
+}
+
+build_picolibc() {
+	cd ${BASE}
+
+	# Build picolibc for each architecture version since multilib is
+	# disabled for hexagon.  Each build produces libc.a, libm.a,
+	# libsemihost.a, crt0.o, crt0-semihost.o etc.
+	for archver in ${HEX_ARCH_VERSIONS}
+	do
+		echo "=== Building picolibc for ${archver} ==="
+		BUILDDIR=obj_picolibc_${archver}
+		rm -rf ${BUILDDIR}
+
+		PICOLIBC_PREFIX=${HEX_PICOLIBC_BASE}
+
+		# Generate a meson cross-file for this architecture version.
+		# We point at the freshly-built toolchain.
+		cat > picolibc-hexagon-${archver}.txt <<CROSSEOF
+[binaries]
+c = ['${TOOLCHAIN_BIN}/clang', '--target=hexagon-unknown-none-elf', '-m${archver}', '-fno-pic', '-fno-PIE', '-static', '-nostdlib', '-fuse-init-array', '-G0']
+c_ld = '${TOOLCHAIN_BIN}/ld.eld'
+ar = '${TOOLCHAIN_BIN}/llvm-ar'
+as = '${TOOLCHAIN_BIN}/clang'
+nm = '${TOOLCHAIN_BIN}/llvm-nm'
+strip = '${TOOLCHAIN_BIN}/llvm-strip'
+objcopy = '${TOOLCHAIN_BIN}/llvm-objcopy'
+
+[host_machine]
+system = 'none'
+cpu_family = 'hexagon'
+cpu = 'hexagon'
+endian = 'little'
+
+[properties]
+librt = '-lclang_rt.builtins'
+skip_sanity_check = true
+needs_exe_wrapper = true
+link_spec = '--build-id=none'
+default_ram_addr = '0x00500000'
+default_ram_size = '0x00800000'
+default_flash_addr = '0x00100000'
+default_flash_size = '0x00400000'
+CROSSEOF
+
+		# Place builtins into per-arch lib dir where the driver will search
+		ARCHLIB=${HEX_PICOLIBC_BASE}/lib/${archver}/G0
+		mkdir -p ${ARCHLIB}
+		ln -sf ../../hexagon-unknown-none-elf/libclang_rt.builtins.a \
+			${ARCHLIB}/libclang_rt.builtins.a
+
+		meson setup \
+			--cross-file picolibc-hexagon-${archver}.txt \
+			-Dprefix=${PICOLIBC_PREFIX} \
+			-Dlibdir=lib/${archver}/G0 \
+			-Dincludedir=include \
+			-Dspecsdir=none \
+			-Dtests=false \
+			-Dmultilib=false \
+			-Dposix-console=true \
+			-Dsysroot-install=false \
+			-Dc_link_args="-L${ARCHLIB}" \
+			${BUILDDIR} \
+			picolibc
+
+		ninja -C ${BUILDDIR}
+		DESTDIR= ninja -C ${BUILDDIR} install
+
+		if [[ "${IN_CONTAINER-0}" -eq 1 ]]; then
+			rm -rf ${BUILDDIR}
+		fi
+	done
+
+	# Create convenience symlinks for the bare triple forms
+	cd ${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/target/picolibc
+	ln -sf hexagon-unknown-none-elf hexagon-none-elf 2>/dev/null || true
+}
+
 purge_builds() {
 	rm -rf ${BASE}/obj_*/
 }
@@ -342,6 +437,7 @@ TOOLCHAIN_BIN=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/bin
 TOOLCHAIN_LIB=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/lib
 HEX_SYSROOT=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/target/hexagon-unknown-linux-musl
 HEX_TOOLS_TARGET_BASE=${HEX_SYSROOT}/usr
+HEX_PICOLIBC_BASE=${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/target/picolibc/hexagon-unknown-none-elf
 ROOT_INSTALL_REL=${ROOT_INSTALL}
 ROOTFS=$(readlink -f ${ROOT_INSTALL})
 RESULTS_DIR_=${ARTIFACT_BASE}/${ARTIFACT_TAG}
@@ -364,6 +460,8 @@ fi
 
 ccache --show-stats
 
+
+HEX_ARCH_VERSIONS="v68 v69 v71 v73 v75 v79"
 
 MUSL_CFLAGS="-G0 -O0 -mv68 -fno-builtin -mlong-calls --target=hexagon-unknown-linux-musl"
 
@@ -404,6 +502,8 @@ build_musl
 build_libs
 #build_sanitizers
 
+build_clang_rt_builtins_baremetal
+build_picolibc
 
 for t in ${CROSS_ALL}
 do
