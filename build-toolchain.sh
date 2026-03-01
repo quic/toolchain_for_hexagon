@@ -119,7 +119,7 @@ add_symlinks() {
 		ln -sf --relative ${linkdir}/ld.eld ${linkdir}/${triple}-ld.eld
 	done
 
-	for triple in hexagon-unknown-linux-musl hexagon-unknown-none-elf hexagon-linux-musl hexagon-none-elf
+	for triple in hexagon-unknown-linux-musl hexagon-unknown-none-elf hexagon-linux-musl hexagon-none-elf hexagon
 	do
 		ln -sf --relative ${linkdir}/clang ${linkdir}/${triple}-clang
 		ln -sf --relative ${linkdir}/clang ${linkdir}/${triple}-clang++
@@ -430,6 +430,12 @@ CROSSEOF
 	ln -sf hexagon-unknown-none-elf hexagon-none-elf 2>/dev/null || true
 }
 
+install_baremetal_cfg() {
+	cd ${BASE}
+	cp hexagon-unknown-none-elf.cfg ${TOOLCHAIN_BIN}/hexagon-unknown-none-elf.cfg
+	ln -sf hexagon-unknown-none-elf.cfg ${TOOLCHAIN_BIN}/hexagon.cfg
+}
+
 purge_builds() {
 	rm -rf ${BASE}/obj_*/
 }
@@ -507,10 +513,13 @@ build_libs
 
 build_clang_rt_builtins_baremetal
 build_picolibc
+install_baremetal_cfg
 
 for t in ${CROSS_ALL}
 do
 	cp -ra ${TOOLCHAIN_INSTALL}/${ARCH}-linux-gnu/target ${TOOLCHAIN_INSTALL}/${t}
+	cp ${TOOLCHAIN_BIN}/hexagon-unknown-none-elf.cfg ${TOOLCHAIN_INSTALL}/${t}/bin/ 2>/dev/null || true
+	ln -sf hexagon-unknown-none-elf.cfg ${TOOLCHAIN_INSTALL}/${t}/bin/hexagon.cfg 2>/dev/null || true
 done
 build_qemu
 
